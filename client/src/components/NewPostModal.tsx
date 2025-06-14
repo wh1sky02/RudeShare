@@ -291,16 +291,16 @@ export default function NewPostModal({ open, onOpenChange }: NewPostModalProps) 
             )}
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3">
             <div className="flex items-start space-x-2">
-              <i className="fas fa-info-circle text-blue-600 mt-0.5"></i>
-              <div className="text-sm text-blue-800">
-                <p className="font-medium mb-1">Posting Guidelines:</p>
+              <i className="fas fa-exclamation-triangle text-red-600 mt-0.5"></i>
+              <div className="text-sm text-red-800">
+                <p className="font-medium mb-1">RudeShare Rules:</p>
                 <ul className="space-y-1 text-xs">
-                  <li>• Be respectful and constructive</li>
-                  <li>• No harassment, hate speech, or spam</li>
-                  <li>• No personal information sharing</li>
-                  <li>• Posts are permanent and cannot be edited</li>
+                  <li>• BE RUDE - politeness gets you banned</li>
+                  <li>• Savage criticism and brutal honesty only</li>
+                  <li>• Death threats still banned (legal reasons)</li>
+                  <li>• Posts are permanent - own your rudeness</li>
                 </ul>
               </div>
             </div>
@@ -317,9 +317,9 @@ export default function NewPostModal({ open, onOpenChange }: NewPostModalProps) 
             <Button
               type="submit"
               disabled={createPostMutation.isPending || isOverLimit || (content.trim().length === 0 && !uploadedMedia)}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-red-600 hover:bg-red-700"
             >
-              {createPostMutation.isPending ? "Posting..." : "Post Anonymously"}
+              {createPostMutation.isPending ? "Posting..." : "Post Your Rant"}
             </Button>
           </div>
         </form>

@@ -39,8 +39,8 @@ export default function Footer({ onShowGuidelines }: FooterProps) {
 
           <div className="text-sm text-slate-500">
             <span>Made with</span>
-            <i className="fas fa-heart text-red-500 mx-1"></i>
-            <span>for free expression</span>
+            <i className="fas fa-fire text-red-500 mx-1"></i>
+            <span>for brutal honesty</span>
           </div>
         </div>
       </div>

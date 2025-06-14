@@ -1,8 +1,8 @@
-# FreedomShare - Anonymous Social Media Platform
+# RudeShare - Brutal Anonymous Social Media Platform
 
 ## Overview
 
-FreedomShare is a full-stack anonymous social media platform built with modern web technologies. It enables users to share thoughts and opinions without creating accounts, emphasizing free expression and community-driven content moderation through voting and reporting systems.
+RudeShare is a full-stack anonymous social media platform designed for brutal honesty and unfiltered opinions. Users can post anonymously without accounts, but politeness is automatically banned. The platform enforces rudeness through AI content moderation while still prohibiting death threats and harassment for legal compliance.
 
 ## System Architecture
 
@@ -29,8 +29,10 @@ FreedomShare is a full-stack anonymous social media platform built with modern w
 - **IP Hashing**: Uses SHA-256 to prevent duplicate votes while maintaining anonymity
 - **Media Support**: Image and video uploads with file size limits (10MB images, 50MB videos)
 
-### Authentication & Privacy
+### Content Moderation & Privacy
 - **No User Accounts**: Completely anonymous posting system
+- **Automatic Politeness Detection**: AI system bans posts containing polite language
+- **Legal Compliance**: Death threats and harassment still prohibited
 - **IP-Based Deduplication**: Prevents spam while maintaining privacy through hashing
 - **Anonymous Post IDs**: Generated unique identifiers like #A7B9C2 for each post
 
@@ -101,8 +103,9 @@ FreedomShare is a full-stack anonymous social media platform built with modern w
 - **Port Configuration**: Internal 5000 → External 80
 
 ## Changelog
-- June 14, 2025: Initial setup with basic anonymous posting
+- June 14, 2025: Initial setup with basic anonymous posting (FreedomShare)
 - June 14, 2025: Added media upload (images/videos), sorting features, and auto-cleanup of old posts
+- June 14, 2025: Transformed to RudeShare - brutal honesty platform with automatic politeness detection and banning system
 
 ## User Preferences
 
