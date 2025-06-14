@@ -7,6 +7,8 @@ import Footer from "@/components/Footer";
 import PostCard from "@/components/PostCard";
 import NewPostModal from "@/components/NewPostModal";
 import GuidelinesModal from "@/components/GuidelinesModal";
+import HallOfShame from "@/components/HallOfShame";
+import DailyChallenge from "@/components/DailyChallenge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -77,6 +79,11 @@ export default function Home() {
     voteMutation.mutate({ postId, voteType });
   };
 
+  const handleRespondToChallenge = (prompt: string) => {
+    setPostModalOpen(true);
+    // You could pre-fill the post content with the challenge prompt if needed
+  };
+
   const displayPosts = searchQuery.length > 0 ? searchResults : posts;
   const isLoading = searchQuery.length > 0 ? searchLoading : postsLoading;
 
@@ -129,11 +136,18 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Daily Challenge */}
+          {!searchQuery && (
+            <div className="mb-8">
+              <DailyChallenge onRespondToChallenge={handleRespondToChallenge} />
+            </div>
+          )}
+
           {/* Statistics */}
           {stats && !searchQuery && (
             <Card className="glass mb-8 border-border/50 glow-red">
               <CardContent className="p-6">
-                <div className="grid grid-cols-3 gap-6 text-center">
+                <div className="grid grid-cols-5 gap-6 text-center">
                   <div className="group">
                     <div className="text-3xl font-bold gradient-text mb-2">
                       {stats.totalPosts.toLocaleString()}
@@ -146,11 +160,23 @@ export default function Home() {
                     </div>
                     <div className="text-sm text-muted-foreground font-medium tracking-wide">Today's Rants</div>
                   </div>
-                  <div className="group">
+                  <div className="group border-x border-border/30">
                     <div className="text-3xl font-bold gradient-text mb-2">
                       {stats.activeUsers.toLocaleString()}
                     </div>
                     <div className="text-sm text-muted-foreground font-medium tracking-wide">Savage Users</div>
+                  </div>
+                  <div className="group border-x border-border/30">
+                    <div className="text-3xl font-bold gradient-text mb-2">
+                      {stats.avgRudenessScore}%
+                    </div>
+                    <div className="text-sm text-muted-foreground font-medium tracking-wide">Avg Savagery</div>
+                  </div>
+                  <div className="group">
+                    <div className="text-3xl font-bold gradient-text mb-2">
+                      {stats.bannedPoliteCount.toLocaleString()}
+                    </div>
+                    <div className="text-sm text-muted-foreground font-medium tracking-wide">Polite Bans</div>
                   </div>
                 </div>
               </CardContent>
@@ -218,6 +244,13 @@ export default function Home() {
               <i className="fas fa-chevron-down mr-2"></i>
               Load More Savage Takes
             </Button>
+          </div>
+        )}
+
+        {/* Hall of Shame */}
+        {!searchQuery && (
+          <div className="mt-12">
+            <HallOfShame />
           </div>
         )}
       </main>

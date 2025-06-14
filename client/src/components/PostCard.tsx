@@ -81,6 +81,25 @@ export default function PostCard({ post, onVote, isVoting }: PostCardProps) {
             <div className="flex items-center space-x-4 text-sm text-muted-foreground">
               <span className="font-medium">{timeAgo}</span>
               <span className="font-mono text-xs bg-accent/50 px-2 py-1 rounded-full">{post.postId}</span>
+              
+              {/* Escalating Rudeness Meter */}
+              {post.rudenessScore > 0 && (
+                <div className="flex items-center space-x-2">
+                  <div className={`px-2 py-1 rounded-full text-xs font-bold ${
+                    post.rudenessScore >= 80 ? 'bg-red-500/20 text-red-400' :
+                    post.rudenessScore >= 60 ? 'bg-orange-500/20 text-orange-400' :
+                    post.rudenessScore >= 40 ? 'bg-yellow-500/20 text-yellow-400' :
+                    'bg-green-500/20 text-green-400'
+                  }`}>
+                    🔥 {post.rudenessScore}% SAVAGE
+                  </div>
+                  {post.isBoosted && (
+                    <div className="bg-red-500/30 px-2 py-1 rounded-full text-xs font-bold text-red-300 glow-red">
+                      ⚡ BOOSTED
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

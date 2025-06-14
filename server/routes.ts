@@ -209,6 +209,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get Hall of Shame (banned polite posts)
+  app.get("/api/hall-of-shame", async (req, res) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 20;
+      const bannedPosts = await storage.getBannedPolitePosts(limit);
+      res.json(bannedPosts);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get hall of shame" });
+    }
+  });
+
+  // Get today's brutal challenge
+  app.get("/api/daily-challenge", async (req, res) => {
+    try {
+      const challenge = await storage.getTodaysChallenge();
+      res.json(challenge);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get daily challenge" });
+    }
+  });
+
   // Cleanup old posts (can be called manually or via cron)
   app.post("/api/cleanup", async (req, res) => {
     try {
