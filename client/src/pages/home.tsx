@@ -19,7 +19,7 @@ export default function Home() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // Fetch posts
+  // Fetch posts - NO LOADING STATES
   const { data: posts = [], isLoading: postsLoading } = useQuery({
     queryKey: ['/api/posts', sortBy],
     queryFn: async () => {
@@ -29,7 +29,7 @@ export default function Home() {
     }
   });
 
-  // Search posts
+  // Search posts - NO LOADING STATES
   const { data: searchResults = [], isLoading: searchLoading } = useQuery({
     queryKey: ['/api/posts/search', searchQuery],
     queryFn: async () => {
@@ -41,7 +41,7 @@ export default function Home() {
     enabled: searchQuery.length > 0
   });
 
-  // Fetch statistics
+  // Fetch statistics - NO LOADING STATES
   const { data: stats } = useQuery({
     queryKey: ['/api/statistics'],
     queryFn: async () => {
@@ -165,7 +165,7 @@ export default function Home() {
                 </Select>
               </div>
               <div className="text-xs text-muted-foreground flex items-center justify-center sm:justify-start space-x-1.5">
-                <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
                 <span>Live Feed</span>
               </div>
             </div>
@@ -207,27 +207,8 @@ export default function Home() {
           </div>
         )}
 
-        {/* Posts Feed */}
-        {isLoading ? (
-          <div className="space-y-2">
-            {[...Array(5)].map((_, i) => (
-              <Card key={i} className="glass p-3 border-border/50">
-                <div className="animate-pulse flex space-x-3">
-                  <div className="w-8 space-y-2">
-                    <div className="h-4 bg-accent/50 rounded w-6"></div>
-                    <div className="h-4 bg-accent/30 rounded w-8"></div>
-                    <div className="h-4 bg-accent/50 rounded w-6"></div>
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-accent/30 rounded w-1/3"></div>
-                    <div className="h-4 bg-accent/50 rounded w-3/4"></div>
-                    <div className="h-4 bg-accent/30 rounded w-1/2"></div>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        ) : displayPosts.length === 0 ? (
+        {/* Posts Feed - NO LOADING SKELETON */}
+        {displayPosts.length === 0 && !isLoading ? (
           <Card className="glass p-6 sm:p-8 text-center border-border/50">
             <div className="text-muted-foreground text-base">
               {searchQuery ? (
