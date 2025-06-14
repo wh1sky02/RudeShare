@@ -8,6 +8,8 @@ export const posts = pgTable("posts", {
   score: integer("score").notNull().default(0),
   reportCount: integer("report_count").notNull().default(0),
   postId: text("post_id").notNull().unique(), // Anonymous ID like #A7B9C2
+  mediaUrl: text("media_url"), // URL for uploaded images/videos
+  mediaType: text("media_type"), // 'image' or 'video'
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -29,6 +31,8 @@ export const reports = pgTable("reports", {
 
 export const insertPostSchema = createInsertSchema(posts).pick({
   content: true,
+  mediaUrl: true,
+  mediaType: true,
 });
 
 export const insertVoteSchema = createInsertSchema(votes).pick({
