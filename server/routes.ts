@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertPostSchema, insertVoteSchema, insertReportSchema } from "@shared/schema";
+import { insertPostSchema, insertVoteSchema, insertReactionSchema, insertReportSchema } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
@@ -177,6 +177,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid vote data", errors: error.errors });
       }
       res.status(500).json({ message: "Failed to record vote" });
+    }
+  });
+
+  // React to post
+  app.post("/api/posts/:id/react", async (req, res) => {
+    try {
+      const postId = parseInt(req.params.id);
+      const reactionData = { ...req.body, postId };
+      const validatedData = insertReactionSchema.parse(reactionData);
+      
+      const clientIP = req.ip || req.connection.remoteAddress || '127.0.0.1';
+      const reaction = await storage.createReaction(validatedData, clientIP);
+      
+      if (!reaction) {
+        return res.status(409).json({ message: "You have already reacted with this type on this post" });
+      }
+      
+      res.status(201).json(reaction);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid reaction data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to record reaction" });
     }
   });
 

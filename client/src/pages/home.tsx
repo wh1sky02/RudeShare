@@ -80,8 +80,41 @@ export default function Home() {
     },
   });
 
+  // Reaction mutation
+  const reactionMutation = useMutation({
+    mutationFn: async ({ postId, reactionType }: { postId: number; reactionType: string }) => {
+      const response = await fetch(`/api/posts/${postId}/react`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reactionType }),
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to react');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/statistics'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Reaction failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleVote = (postId: number, voteType: 'up' | 'down') => {
     voteMutation.mutate({ postId, voteType });
+  };
+
+  const handleReaction = (postId: number, reactionType: string) => {
+    reactionMutation.mutate({ postId, reactionType });
   };
 
   const displayPosts = searchQuery.length > 0 ? searchResults : posts;
@@ -211,7 +244,8 @@ export default function Home() {
                 key={post.id}
                 post={post}
                 onVote={handleVote}
-                isVoting={voteMutation.isPending}
+                onReaction={handleReaction}
+                isVoting={voteMutation.isPending || reactionMutation.isPending}
               />
             ))}
           </div>

@@ -24,6 +24,14 @@ export const votes = pgTable("votes", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const reactions = pgTable("reactions", {
+  id: serial("id").primaryKey(),
+  postId: integer("post_id").notNull(),
+  reactionType: text("reaction_type").notNull(), // 'savage', 'brutal', 'trash', 'boring', 'legendary', 'middle_finger'
+  ipHash: text("ip_hash").notNull(), // Hashed IP to prevent duplicate reactions
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const reports = pgTable("reports", {
   id: serial("id").primaryKey(),
   postId: integer("post_id").notNull(),
@@ -62,6 +70,11 @@ export const insertVoteSchema = createInsertSchema(votes).pick({
   voteType: true,
 });
 
+export const insertReactionSchema = createInsertSchema(reactions).pick({
+  postId: true,
+  reactionType: true,
+});
+
 export const insertReportSchema = createInsertSchema(reports).pick({
   postId: true,
   reason: true,
@@ -79,9 +92,14 @@ export const insertDailyChallengeSchema = createInsertSchema(dailyChallenges).pi
 });
 
 export type InsertPost = z.infer<typeof insertPostSchema>;
-export type Post = typeof posts.$inferSelect;
+export type Post = typeof posts.$inferSelect & {
+  reactions?: { [key: string]: number };
+  brutalityPercentage?: number;
+};
 export type InsertVote = z.infer<typeof insertVoteSchema>;
 export type Vote = typeof votes.$inferSelect;
+export type InsertReaction = z.infer<typeof insertReactionSchema>;
+export type Reaction = typeof reactions.$inferSelect;
 export type InsertReport = z.infer<typeof insertReportSchema>;
 export type Report = typeof reports.$inferSelect;
 export type InsertBannedPolitePost = z.infer<typeof insertBannedPolitePostSchema>;
