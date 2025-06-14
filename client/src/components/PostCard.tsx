@@ -16,38 +16,13 @@ export default function PostCard({ post, onVote, isVoting }: PostCardProps) {
   const timeAgo = formatDistanceToNow(new Date(post.createdAt), { addSuffix: true });
 
   return (
-    <Card className="glass p-6 hover:shadow-xl transition-all duration-300 border-border/50 float-animation">
-      <div className="flex space-x-4">
-        {/* Voting Column */}
-        <div className="flex flex-col items-center space-y-2 py-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleUpvote}
-            disabled={isVoting}
-            className="text-muted-foreground hover:text-emerald-400 p-2 h-auto rounded-full hover:bg-emerald-500/10 transition-all duration-200"
-          >
-            <i className="fas fa-chevron-up text-lg"></i>
-          </Button>
-          <span className="text-lg font-bold text-foreground bg-accent/30 px-3 py-1 rounded-full">
-            {post.score}
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleDownvote}
-            disabled={isVoting}
-            className="text-muted-foreground hover:text-red-400 p-2 h-auto rounded-full hover:bg-red-500/10 transition-all duration-200"
-          >
-            <i className="fas fa-chevron-down text-lg"></i>
-          </Button>
-        </div>
-
-        {/* Content Column */}
-        <div className="flex-1 min-w-0">
+    <Card className="glass p-4 sm:p-6 hover:shadow-xl transition-all duration-300 border-border/50 float-animation">
+      <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+        {/* Content Column - Full width on mobile */}
+        <div className="flex-1 min-w-0 order-2 sm:order-1">
           <div className="prose prose-slate max-w-none">
             {post.content && (
-              <p className="text-foreground leading-relaxed whitespace-pre-wrap text-lg font-medium">
+              <p className="text-foreground leading-relaxed whitespace-pre-wrap text-base sm:text-lg font-medium">
                 {post.content}
               </p>
             )}
@@ -59,15 +34,17 @@ export default function PostCard({ post, onVote, isVoting }: PostCardProps) {
                   <img
                     src={post.mediaUrl}
                     alt="User uploaded content"
-                    className="max-w-full h-auto rounded-xl border border-border/30 shadow-lg"
-                    style={{ maxHeight: '500px' }}
+                    className="max-w-full h-auto rounded-xl border border-border/30 shadow-lg cursor-pointer"
+                    style={{ maxHeight: '400px' }}
+                    onClick={() => window.open(post.mediaUrl!, '_blank')}
                   />
                 ) : post.mediaType === 'video' ? (
                   <video
                     src={post.mediaUrl}
                     controls
                     className="max-w-full h-auto rounded-xl border border-border/30 shadow-lg"
-                    style={{ maxHeight: '500px' }}
+                    style={{ maxHeight: '400px' }}
+                    playsInline
                   >
                     Your browser does not support the video tag.
                   </video>
@@ -77,8 +54,8 @@ export default function PostCard({ post, onVote, isVoting }: PostCardProps) {
           </div>
 
           {/* Post Meta */}
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/30">
-            <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-4 pt-4 border-t border-border/30 space-y-2 sm:space-y-0">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-muted-foreground">
               <span className="font-medium">{timeAgo}</span>
               <span className="font-mono text-xs bg-accent/50 px-2 py-1 rounded-full">{post.postId}</span>
               
@@ -102,6 +79,31 @@ export default function PostCard({ post, onVote, isVoting }: PostCardProps) {
               )}
             </div>
           </div>
+        </div>
+
+        {/* Voting Column - Horizontal on mobile, vertical on desktop */}
+        <div className="flex sm:flex-col items-center justify-center space-x-4 sm:space-x-0 sm:space-y-2 py-2 order-1 sm:order-2 border-b sm:border-b-0 border-border/30 pb-4 sm:pb-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleUpvote}
+            disabled={isVoting}
+            className="text-muted-foreground hover:text-emerald-400 p-2 h-auto rounded-full hover:bg-emerald-500/10 transition-all duration-200 touch-manipulation"
+          >
+            <i className="fas fa-chevron-up text-lg sm:text-xl"></i>
+          </Button>
+          <span className="text-lg sm:text-xl font-bold text-foreground bg-accent/30 px-3 py-1 rounded-full min-w-[3rem] text-center">
+            {post.score}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleDownvote}
+            disabled={isVoting}
+            className="text-muted-foreground hover:text-red-400 p-2 h-auto rounded-full hover:bg-red-500/10 transition-all duration-200 touch-manipulation"
+          >
+            <i className="fas fa-chevron-down text-lg sm:text-xl"></i>
+          </Button>
         </div>
       </div>
     </Card>

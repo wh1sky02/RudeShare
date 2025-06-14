@@ -6,13 +6,13 @@ interface FooterProps {
 
 export default function Footer({ onShowGuidelines }: FooterProps) {
   return (
-    <footer className="glass border-t border-border/50 mt-16">
-      <div className="max-w-6xl mx-auto px-6 py-12">
+    <footer className="glass border-t border-border/50 mt-12 sm:mt-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <div className="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
-          <div className="flex items-center space-x-8 text-sm text-muted-foreground">
+          <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 lg:space-x-8 text-sm text-muted-foreground">
             <a
               href="https://github.com"
-              className="hover:text-primary transition-colors duration-200 flex items-center space-x-2 font-medium"
+              className="hover:text-primary transition-colors duration-200 flex items-center space-x-2 font-medium touch-manipulation"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -23,14 +23,14 @@ export default function Footer({ onShowGuidelines }: FooterProps) {
               variant="ghost"
               size="sm"
               onClick={onShowGuidelines}
-              className="hover:text-primary transition-colors duration-200 p-0 h-auto text-sm text-muted-foreground font-medium"
+              className="hover:text-primary transition-colors duration-200 p-0 h-auto text-sm text-muted-foreground font-medium touch-manipulation"
             >
               <i className="fas fa-skull mr-2 text-lg"></i>
               Guidelines
             </Button>
             <a
               href="#"
-              className="hover:text-primary transition-colors duration-200 flex items-center space-x-2 font-medium"
+              className="hover:text-primary transition-colors duration-200 flex items-center space-x-2 font-medium touch-manipulation"
             >
               <i className="fas fa-user-secret text-lg"></i>
               <span>Privacy</span>
