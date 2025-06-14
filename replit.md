@@ -110,3 +110,5 @@ RudeShare is a full-stack anonymous social media platform designed for brutal ho
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+UI Style: Modern, contemporary design with dark theme and sleek styling.
+Content Moderation: No report buttons - platform relies on automatic politeness detection only.

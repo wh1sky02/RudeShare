@@ -71,32 +71,10 @@ export default function Home() {
     },
   });
 
-  // Report mutation
-  const reportMutation = useMutation({
-    mutationFn: async ({ postId, reason }: { postId: number; reason?: string }) => {
-      await apiRequest('POST', `/api/posts/${postId}/report`, { reason });
-    },
-    onSuccess: () => {
-      toast({
-        title: "Post reported",
-        description: "Thank you for helping maintain community standards.",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Report failed",
-        description: "Failed to report post. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
+
 
   const handleVote = (postId: number, voteType: 'up' | 'down') => {
     voteMutation.mutate({ postId, voteType });
-  };
-
-  const handleReport = (postId: number, reason?: string) => {
-    reportMutation.mutate({ postId, reason });
   };
 
   const displayPosts = searchQuery.length > 0 ? searchResults : posts;
@@ -224,9 +202,7 @@ export default function Home() {
                 key={post.id}
                 post={post}
                 onVote={handleVote}
-                onReport={handleReport}
                 isVoting={voteMutation.isPending}
-                isReporting={reportMutation.isPending}
               />
             ))}
           </div>
