@@ -27,108 +27,69 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     
     <style>
-      /* CRITICAL: Prevent ALL blinking and flashing */
-      * {
-        transition: none !important;
-        animation: none !important;
-        -webkit-transition: none !important;
-        -moz-transition: none !important;
-        -o-transition: none !important;
-        -webkit-animation: none !important;
-        -moz-animation: none !important;
-        -o-animation: none !important;
-        box-sizing: border-box;
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
-      }
-      
+      /* Prevent any flash of unstyled content */
       html {
-        background: #0d0d0d !important;
-        color: #f2f2f2 !important;
-        overflow-x: hidden;
-        height: 100%;
-        margin: 0;
-        padding: 0;
+        background: linear-gradient(135deg, hsl(0, 0%, 5%) 0%, hsl(0, 0%, 8%) 100%);
+        color: hsl(0, 0%, 95%);
       }
       
       body {
         font-family: 'Inter', sans-serif;
-        background: #0d0d0d !important;
-        color: #f2f2f2 !important;
-        margin: 0 !important;
-        padding: 0 !important;
+        background: linear-gradient(135deg, hsl(0, 0%, 5%) 0%, hsl(0, 0%, 8%) 100%);
+        color: hsl(0, 0%, 95%);
+        margin: 0;
+        padding: 0;
         min-height: 100vh;
-        overflow-x: hidden;
+        /* Prevent blinking/flashing */
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        -webkit-text-size-adjust: 100%;
-        -webkit-overflow-scrolling: touch;
+        /* Prevent layout shifts */
+        overflow-x: hidden;
       }
       
+      /* Hide content until React loads */
       #root {
-        opacity: 1 !important;
-        visibility: visible !important;
-        background: #0d0d0d !important;
-        min-height: 100vh;
+        opacity: 1;
+        transition: none;
       }
       
-      /* Remove all loading states */
-      .loading, .loaded {
-        opacity: 1 !important;
-        visibility: visible !important;
-      }
-      
-      /* Minimal spinner - no animations */
+      /* Loading spinner */
       .spinner {
         border: 2px solid #333;
         border-top: 2px solid #dc2626;
         border-radius: 50%;
-        width: 20px;
-        height: 20px;
-        margin: 10px auto;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      /* Prevent any transitions during load */
+      .loading * {
+        transition: none !important;
+        animation: none !important;
       }
     </style>
   </head>
   <body>
     <div id="root">
-      <!-- Minimal static loading -->
-      <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #0d0d0d;">
+      <!-- Minimal loading fallback -->
+      <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, hsl(0, 0%, 5%) 0%, hsl(0, 0%, 8%) 100%);">
         <div style="text-align: center; color: #dc2626;">
           <div class="spinner"></div>
-          <p style="margin-top: 10px; font-family: 'Inter', sans-serif; font-size: 14px;">Loading...</p>
+          <p style="margin-top: 20px; font-family: 'Inter', sans-serif; font-size: 14px;">Loading RudeShare...</p>
         </div>
       </div>
     </div>
     <script type="module" src="/src/main.tsx"></script>
     
     <script>
-      // Prevent all transitions and animations during load
-      document.addEventListener('DOMContentLoaded', function() {
-        const style = document.createElement('style');
-        style.innerHTML = `
-          *, *::before, *::after {
-            transition: none !important;
-            animation: none !important;
-            -webkit-transition: none !important;
-            -moz-transition: none !important;
-            -o-transition: none !important;
-          }
-        `;
-        document.head.appendChild(style);
-        
-        // Keep transitions disabled for longer
-        setTimeout(() => {
-          style.innerHTML = `
-            * {
-              transition: all 0.1s ease !important;
-            }
-          `;
-        }, 1000);
-      });
-      
-      // Prevent double-tap zoom
+      // Prevent double-tap zoom on iOS
       let lastTouchEnd = 0;
       document.addEventListener('touchend', function (event) {
         const now = (new Date()).getTime();
@@ -137,6 +98,11 @@
         }
         lastTouchEnd = now;
       }, false);
+      
+      // Prevent context menu on long press
+      document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+      });
     </script>
   </body>
 </html>

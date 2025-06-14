@@ -20,58 +20,23 @@ function Router() {
 
 function App() {
   useEffect(() => {
-    // Immediately disable all transitions and animations
-    const disableAnimationsStyle = document.createElement('style');
-    disableAnimationsStyle.id = 'disable-animations';
-    disableAnimationsStyle.innerHTML = `
-      *, *::before, *::after {
-        transition: none !important;
-        animation: none !important;
-        -webkit-transition: none !important;
-        -moz-transition: none !important;
-        -o-transition: none !important;
-        -webkit-animation: none !important;
-        -moz-animation: none !important;
-        -o-animation: none !important;
-      }
-      
-      /* Override any library animations */
-      .animate-in,
-      .animate-out,
-      [data-state="open"],
-      [data-state="closed"],
-      [data-radix-dialog-overlay],
-      [data-radix-dialog-content] {
-        animation: none !important;
-        transition: none !important;
+    // Remove any loading states immediately
+    document.body.classList.remove('loading');
+    
+    // Prevent any flash of unstyled content
+    const style = document.createElement('style');
+    style.textContent = `
+      * { 
+        transition: none !important; 
+        animation: none !important; 
       }
     `;
-    document.head.appendChild(disableAnimationsStyle);
+    document.head.appendChild(style);
     
-    // Remove loading classes
-    document.body.classList.remove('loading');
-    document.body.classList.add('loaded');
-    
-    // Keep animations disabled for a longer period
+    // Remove the style after a brief moment to allow normal transitions
     setTimeout(() => {
-      const enableTransitionsStyle = document.createElement('style');
-      enableTransitionsStyle.innerHTML = `
-        * {
-          transition: all 0.1s ease;
-        }
-        
-        button:hover {
-          transition: all 0.1s ease;
-        }
-      `;
-      document.head.appendChild(enableTransitionsStyle);
-      
-      // Remove the disable animations style
-      const disableStyle = document.getElementById('disable-animations');
-      if (disableStyle) {
-        disableStyle.remove();
-      }
-    }, 2000); // Keep disabled for 2 seconds
+      document.head.removeChild(style);
+    }, 100);
   }, []);
 
   return (
