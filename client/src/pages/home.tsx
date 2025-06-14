@@ -1,79 +1,86 @@
-import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { queryClient } from "@/lib/queryClient";
-import { apiRequest } from "@/lib/queryClient";
+import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import PostCard from "@/components/PostCard";
 import NewPostModal from "@/components/NewPostModal";
 import GuidelinesModal from "@/components/GuidelinesModal";
-import HallOfShame from "@/components/HallOfShame";
+import Footer from "@/components/Footer";
 import DailyChallenge from "@/components/DailyChallenge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import type { Post } from "@shared/schema";
+import HallOfShame from "@/components/HallOfShame";
+import { Post } from "@shared/schema";
 
 export default function Home() {
-  const [postModalOpen, setPostModalOpen] = useState(false);
-  const [guidelinesModalOpen, setGuidelinesModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'popular' | 'controversial'>('newest');
+  const [postModalOpen, setPostModalOpen] = useState(false);
+  const [guidelinesModalOpen, setGuidelinesModalOpen] = useState(false);
+  const queryClient = useQueryClient();
   const { toast } = useToast();
 
   // Fetch posts
-  const { data: posts = [], isLoading: postsLoading } = useQuery<Post[]>({
-    queryKey: ["/api/posts", sortBy],
+  const { data: posts = [], isLoading: postsLoading } = useQuery({
+    queryKey: ['/api/posts', sortBy],
     queryFn: async () => {
       const response = await fetch(`/api/posts?sort=${sortBy}`);
       if (!response.ok) throw new Error('Failed to fetch posts');
-      return response.json();
-    },
+      return response.json() as Promise<Post[]>;
+    }
   });
 
-  // Fetch search results
-  const { data: searchResults = [], isLoading: searchLoading } = useQuery<Post[]>({
-    queryKey: ["/api/posts/search", searchQuery],
-    enabled: searchQuery.length > 0,
+  // Search posts
+  const { data: searchResults = [], isLoading: searchLoading } = useQuery({
+    queryKey: ['/api/posts/search', searchQuery],
+    queryFn: async () => {
+      if (!searchQuery.trim()) return [];
+      const response = await fetch(`/api/posts/search?q=${encodeURIComponent(searchQuery)}`);
+      if (!response.ok) throw new Error('Failed to search posts');
+      return response.json() as Promise<Post[]>;
+    },
+    enabled: searchQuery.length > 0
   });
 
   // Fetch statistics
-  const { data: stats } = useQuery<{
-    totalPosts: number;
-    postsToday: number;
-    activeUsers: number;
-  }>({
-    queryKey: ["/api/statistics"],
+  const { data: stats } = useQuery({
+    queryKey: ['/api/statistics'],
+    queryFn: async () => {
+      const response = await fetch('/api/statistics');
+      if (!response.ok) throw new Error('Failed to fetch statistics');
+      return response.json();
+    }
   });
 
   // Vote mutation
   const voteMutation = useMutation({
     mutationFn: async ({ postId, voteType }: { postId: number; voteType: 'up' | 'down' }) => {
-      await apiRequest('POST', `/api/posts/${postId}/vote`, { voteType });
+      const response = await fetch(`/api/posts/${postId}/vote`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ voteType }),
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to vote');
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/posts", sortBy] });
+      queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/statistics'] });
     },
-    onError: (error: any) => {
-      if (error.message.includes('409')) {
-        toast({
-          title: "Already voted",
-          description: "You have already voted on this post.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Vote failed",
-          description: "Failed to record your vote. Please try again.",
-          variant: "destructive",
-        });
-      }
+    onError: (error: Error) => {
+      toast({
+        title: "Vote failed",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
-
-
 
   const handleVote = (postId: number, voteType: 'up' | 'down') => {
     voteMutation.mutate({ postId, voteType });
@@ -96,93 +103,79 @@ export default function Home() {
         onShowGuidelines={() => setGuidelinesModalOpen(true)}
       />
 
-      <main className="max-w-6xl mx-auto px-6 py-8">
-        {/* Feed Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold gradient-text">
-              {searchQuery ? `Search Results for "${searchQuery}"` : "Latest Brutal Takes"}
-            </h2>
+      <main className="max-w-4xl mx-auto px-4 py-6">
+        {/* Quick Action Bar */}
+        {!searchQuery && (
+          <div className="glass border border-border/50 rounded-2xl p-4 mb-6 flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              {!searchQuery && (
-                <Select value={sortBy} onValueChange={(value: 'newest' | 'oldest' | 'popular' | 'controversial') => setSortBy(value)}>
-                  <SelectTrigger className="w-48 bg-card border-border/50 hover:border-primary/50 transition-colors">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover border-border/50">
-                    <SelectItem value="newest">
-                      <i className="fas fa-clock mr-2 text-primary"></i>
-                      Newest
-                    </SelectItem>
-                    <SelectItem value="oldest">
-                      <i className="fas fa-history mr-2 text-primary"></i>
-                      Oldest
-                    </SelectItem>
-                    <SelectItem value="popular">
-                      <i className="fas fa-fire mr-2 text-primary"></i>
-                      Popular
-                    </SelectItem>
-                    <SelectItem value="controversial">
-                      <i className="fas fa-comments mr-2 text-primary"></i>
-                      Most Discussed
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-              <div className="flex items-center space-x-2 text-sm text-muted-foreground bg-accent/30 px-3 py-2 rounded-full">
-                <i className="fas fa-sync-alt text-green-400"></i>
-                <span className="font-medium">Live</span>
+              <Button 
+                onClick={() => setPostModalOpen(true)}
+                className="bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white px-6 py-2"
+              >
+                <i className="fas fa-plus mr-2"></i>
+                Post Something Brutal
+              </Button>
+              <div className="h-8 border-l border-border/50"></div>
+              <Select value={sortBy} onValueChange={(value: 'newest' | 'oldest' | 'popular' | 'controversial') => setSortBy(value)}>
+                <SelectTrigger className="w-36 bg-transparent border-none hover:bg-accent/30">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">🕐 Newest</SelectItem>
+                  <SelectItem value="popular">🔥 Hot</SelectItem>
+                  <SelectItem value="controversial">💀 Savage</SelectItem>
+                  <SelectItem value="oldest">📜 Old</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="text-sm text-muted-foreground flex items-center space-x-2">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span>Live Feed</span>
+            </div>
+          </div>
+        )}
+
+        {/* Search Results Header */}
+        {searchQuery && (
+          <div className="mb-6">
+            <h2 className="text-xl font-bold gradient-text flex items-center">
+              <i className="fas fa-search mr-2"></i>
+              Results for "{searchQuery}"
+            </h2>
+          </div>
+        )}
+
+        {/* Daily Challenge */}
+        {!searchQuery && (
+          <div className="mb-6">
+            <DailyChallenge onRespondToChallenge={handleRespondToChallenge} />
+          </div>
+        )}
+
+        {/* Compact Stats */}
+        {stats && !searchQuery && (
+          <div className="glass border border-border/50 rounded-xl p-4 mb-6">
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center space-x-6">
+                <div className="flex items-center space-x-2">
+                  <span className="text-2xl font-bold gradient-text">{stats.totalPosts}</span>
+                  <span className="text-muted-foreground">posts</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-2xl font-bold gradient-text">{stats.postsToday}</span>
+                  <span className="text-muted-foreground">today</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-2xl font-bold gradient-text">{stats.activeUsers}</span>
+                  <span className="text-muted-foreground">users</span>
+                </div>
+              </div>
+              <div className="text-xs text-muted-foreground bg-accent/30 px-3 py-1 rounded-full">
+                Platform Stats
               </div>
             </div>
           </div>
-
-          {/* Daily Challenge */}
-          {!searchQuery && (
-            <div className="mb-8">
-              <DailyChallenge onRespondToChallenge={handleRespondToChallenge} />
-            </div>
-          )}
-
-          {/* Statistics */}
-          {stats && !searchQuery && (
-            <Card className="glass mb-8 border-border/50 glow-red">
-              <CardContent className="p-6">
-                <div className="grid grid-cols-5 gap-6 text-center">
-                  <div className="group">
-                    <div className="text-3xl font-bold gradient-text mb-2">
-                      {stats.totalPosts.toLocaleString()}
-                    </div>
-                    <div className="text-sm text-muted-foreground font-medium tracking-wide">Brutal Posts</div>
-                  </div>
-                  <div className="group border-x border-border/30">
-                    <div className="text-3xl font-bold gradient-text mb-2">
-                      {stats.postsToday.toLocaleString()}
-                    </div>
-                    <div className="text-sm text-muted-foreground font-medium tracking-wide">Today's Rants</div>
-                  </div>
-                  <div className="group border-x border-border/30">
-                    <div className="text-3xl font-bold gradient-text mb-2">
-                      {stats.activeUsers.toLocaleString()}
-                    </div>
-                    <div className="text-sm text-muted-foreground font-medium tracking-wide">Savage Users</div>
-                  </div>
-                  <div className="group border-x border-border/30">
-                    <div className="text-3xl font-bold gradient-text mb-2">
-                      {stats.avgRudenessScore}%
-                    </div>
-                    <div className="text-sm text-muted-foreground font-medium tracking-wide">Avg Savagery</div>
-                  </div>
-                  <div className="group">
-                    <div className="text-3xl font-bold gradient-text mb-2">
-                      {stats.bannedPoliteCount.toLocaleString()}
-                    </div>
-                    <div className="text-sm text-muted-foreground font-medium tracking-wide">Polite Bans</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+        )}
 
         {/* Posts Feed */}
         {isLoading ? (
@@ -202,19 +195,20 @@ export default function Home() {
             <div className="text-muted-foreground text-lg">
               {searchQuery ? (
                 <div className="space-y-2">
-                  <i className="fas fa-search text-3xl mb-4 text-primary"></i>
-                  <div>No brutal posts found matching your search.</div>
-                  <div className="text-sm">Try different keywords or check your spelling.</div>
+                  <i className="fas fa-search text-4xl text-primary/50 mb-4"></i>
+                  <div>No results found for "{searchQuery}"</div>
+                  <div className="text-sm">Try different keywords or check your spelling</div>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <i className="fas fa-fire text-4xl mb-4 text-primary"></i>
-                  <div className="text-xl font-semibold">No posts yet!</div>
-                  <div>Be the first to drop some brutal honesty.</div>
+                  <i className="fas fa-comments text-6xl text-primary/30 mb-4"></i>
+                  <div className="text-2xl font-bold gradient-text">Ready for Some Brutal Honesty?</div>
+                  <div className="text-base">Be the first to share your savage take</div>
                   <Button 
                     onClick={() => setPostModalOpen(true)}
-                    className="mt-4 bg-primary hover:bg-primary/90 glow-red-hover"
+                    className="mt-6 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white"
                   >
+                    <i className="fas fa-fire mr-2"></i>
                     Start the Chaos
                   </Button>
                 </div>
@@ -222,7 +216,7 @@ export default function Home() {
             </div>
           </Card>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {displayPosts.map((post) => (
               <PostCard
                 key={post.id}
@@ -236,20 +230,20 @@ export default function Home() {
 
         {/* Load More Button */}
         {!searchQuery && displayPosts.length > 0 && (
-          <div className="text-center mt-12">
+          <div className="text-center mt-8">
             <Button 
               variant="outline" 
-              className="px-8 py-3 border-border/50 hover:border-primary/50 hover:bg-accent/30 transition-all duration-200 font-medium"
+              className="px-6 py-2 border-border/50 hover:border-primary/50 hover:bg-accent/30 transition-all duration-200"
             >
               <i className="fas fa-chevron-down mr-2"></i>
-              Load More Savage Takes
+              Load More
             </Button>
           </div>
         )}
 
         {/* Hall of Shame */}
         {!searchQuery && (
-          <div className="mt-12">
+          <div className="mt-8">
             <HallOfShame />
           </div>
         )}
