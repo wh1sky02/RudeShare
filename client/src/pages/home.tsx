@@ -129,7 +129,7 @@ export default function Home() {
         onShowGuidelines={() => setGuidelinesModalOpen(true)}
       />
 
-      <main className="max-w-4xl mx-auto px-4 py-4 sm:py-6">
+      <main className="max-w-4xl mx-auto px-4 py-4 sm:py-6 pb-8">
         {/* Quick Action Bar */}
         {!searchQuery && (
           <div className="glass border border-border/50 rounded-2xl p-3 sm:p-4 mb-4 sm:mb-6">
@@ -255,19 +255,6 @@ export default function Home() {
                 isVoting={voteMutation.isPending || reactionMutation.isPending}
               />
             ))}
-          </div>
-        )}
-
-        {/* Load More Button */}
-        {!searchQuery && displayPosts.length > 0 && (
-          <div className="text-center mt-6 sm:mt-8">
-            <Button 
-              variant="outline" 
-              className="px-6 py-2 border-border/50 hover:border-primary/50 hover:bg-accent/30 transition-all duration-200 touch-manipulation"
-            >
-              <i className="fas fa-chevron-down mr-2"></i>
-              Load More
-            </Button>
           </div>
         )}
       </main>
