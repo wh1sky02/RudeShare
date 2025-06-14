@@ -28,36 +28,33 @@
 @layer base {
   * {
     @apply border-border;
-    /* Prevent blinking during transitions */
+    box-sizing: border-box;
     -webkit-backface-visibility: hidden;
-    -moz-backface-visibility: hidden;
     backface-visibility: hidden;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
   }
 
   html {
-    /* Set background immediately to prevent flash */
-    background: linear-gradient(135deg, hsl(0, 0%, 5%) 0%, hsl(0, 0%, 8%) 100%);
-    color: hsl(0, 0%, 95%);
-    /* Prevent horizontal scroll */
+    background: #0d0d0d !important;
+    color: #f2f2f2 !important;
     overflow-x: hidden;
-    /* Smooth scrolling */
-    scroll-behavior: smooth;
+    scroll-behavior: auto; /* Remove smooth scrolling to prevent blinking */
+    height: 100%;
+    margin: 0;
+    padding: 0;
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    background: linear-gradient(135deg, hsl(0, 0%, 5%) 0%, hsl(0, 0%, 8%) 100%);
+    background: #0d0d0d !important;
     min-height: 100vh;
-    margin: 0;
-    padding: 0;
-    /* Prevent zoom on iOS */
+    margin: 0 !important;
+    padding: 0 !important;
     -webkit-text-size-adjust: 100%;
-    /* Improve touch scrolling */
     -webkit-overflow-scrolling: touch;
-    /* Prevent blinking/flashing */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Prevent layout shifts */
     overflow-x: hidden;
   }
 
@@ -81,19 +78,16 @@
 
   /* Mobile optimizations */
   @media (max-width: 768px) {
-    /* Prevent horizontal scroll */
     html, body {
       overflow-x: hidden;
       width: 100%;
     }
     
-    /* Improve touch targets */
     button, a, input, textarea, select {
       min-height: 44px;
       min-width: 44px;
     }
     
-    /* Better text rendering on mobile */
     body {
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
@@ -106,6 +100,8 @@
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  will-change: auto;
+  transform: translateZ(0);
 }
 
 /* Modern gradient text */
@@ -123,7 +119,6 @@
 
 .glow-red-hover:hover {
   box-shadow: 0 0 30px rgba(239, 68, 68, 0.5);
-  transition: box-shadow 0.3s ease;
 }
 
 /* Custom styles for FontAwesome icons */
@@ -136,25 +131,17 @@
   touch-action: manipulation;
 }
 
-/* Smooth transitions without blinking */
-.transition-smooth {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 /* Mobile-specific improvements */
 @media (max-width: 640px) {
-  /* Improve modal positioning on mobile */
   [data-radix-dialog-content] {
     max-height: 95vh !important;
     margin: 1rem !important;
   }
   
-  /* Better spacing for mobile */
   .space-y-4 > * + * {
     margin-top: 0.75rem;
   }
   
-  /* Improve button sizing on mobile */
   button {
     padding: 0.75rem 1rem;
   }
@@ -176,7 +163,7 @@
   }
 }
 
-/* Prevent blinking during page loads */
+/* Disable all animations for users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -191,22 +178,6 @@
 img, video {
   max-width: 100%;
   height: auto;
-}
-
-/* Ensure consistent rendering */
-* {
-  box-sizing: border-box;
-}
-
-/* Prevent flash of unstyled content */
-.animate-in {
-  animation-fill-mode: both;
-}
-
-/* Stable card rendering */
-.glass {
-  will-change: auto;
-  transform: translateZ(0);
 }
 
 /* Prevent button state flashing */
@@ -230,4 +201,31 @@ textarea {
   textarea {
     font-size: 16px;
   }
+}
+
+/* CRITICAL: Override any library animations */
+.animate-in,
+.animate-out,
+.fade-in,
+.fade-out,
+.slide-in,
+.slide-out,
+[data-state="open"],
+[data-state="closed"] {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Remove Radix UI animations */
+[data-radix-dialog-overlay],
+[data-radix-dialog-content],
+[data-radix-toast-viewport],
+[data-radix-toast] {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Ensure stable rendering */
+* {
+  will-change: auto !important;
 }
