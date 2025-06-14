@@ -201,13 +201,20 @@ export default function Home() {
 
         {/* Posts Feed */}
         {isLoading ? (
-          <div className="space-y-4 sm:space-y-6">
-            {[...Array(3)].map((_, i) => (
-              <Card key={i} className="glass p-4 sm:p-6 border-border/50">
-                <div className="animate-pulse">
-                  <div className="h-6 bg-accent/50 rounded-lg w-3/4 mb-4"></div>
-                  <div className="h-4 bg-accent/30 rounded w-1/2 mb-2"></div>
-                  <div className="h-4 bg-accent/30 rounded w-2/3"></div>
+          <div className="space-y-2 sm:space-y-3">
+            {[...Array(5)].map((_, i) => (
+              <Card key={i} className="glass p-3 sm:p-4 border-border/50">
+                <div className="animate-pulse flex space-x-3">
+                  <div className="w-8 space-y-2">
+                    <div className="h-4 bg-accent/50 rounded w-6"></div>
+                    <div className="h-4 bg-accent/30 rounded w-8"></div>
+                    <div className="h-4 bg-accent/50 rounded w-6"></div>
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-accent/30 rounded w-1/3"></div>
+                    <div className="h-4 bg-accent/50 rounded w-3/4"></div>
+                    <div className="h-4 bg-accent/30 rounded w-1/2"></div>
+                  </div>
                 </div>
               </Card>
             ))}
@@ -238,7 +245,7 @@ export default function Home() {
             </div>
           </Card>
         ) : (
-          <div className="space-y-3 sm:space-y-4">
+          <div className="space-y-2 sm:space-y-3">
             {displayPosts.map((post) => (
               <PostCard
                 key={post.id}
