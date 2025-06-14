@@ -128,8 +128,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
+      const clientIP = req.ip || req.connection.remoteAddress || '127.0.0.1';
+      
       if (moderation.severity === 'banned_polite') {
         const rudeResponse = generateRudeResponse(moderation.flaggedWords);
+        
+        // Store in Hall of Shame
+        await storage.createBannedPolitePost({
+          content: validatedData.content,
+          flaggedWords: moderation.flaggedWords,
+          rudeResponse
+        }, clientIP);
+        
         return res.status(403).json({ 
           message: `BANNED FOR BEING TOO POLITE: ${rudeResponse}`,
           flaggedWords: moderation.flaggedWords,
@@ -137,8 +147,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      const clientIP = req.ip || req.connection.remoteAddress || '127.0.0.1';
-      const post = await storage.createPost(validatedData, clientIP);
+      const post = await storage.createPost(validatedData, clientIP, moderation.rudenessScore);
       res.status(201).json(post);
     } catch (error) {
       if (error instanceof z.ZodError) {

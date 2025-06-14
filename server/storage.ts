@@ -58,6 +58,36 @@ export class MemStorage implements IStorage {
     this.currentReportId = 1;
     this.currentBannedPostId = 1;
     this.currentChallengeId = 1;
+    
+    // Initialize today's challenge
+    this.initializeTodaysChallenge();
+  }
+
+  private initializeTodaysChallenge() {
+    const today = new Date().toISOString().split('T')[0];
+    const existingChallenge = Array.from(this.dailyChallenges.values())
+      .find(c => c.date === today);
+    
+    if (!existingChallenge) {
+      const challenges = [
+        "Roast your biggest failure this year",
+        "What's the most overrated thing everyone loves?", 
+        "Tear apart your worst habit",
+        "Which popular opinion makes you want to scream?",
+        "What trend needs to die immediately?"
+      ];
+      
+      const randomPrompt = challenges[Math.floor(Math.random() * challenges.length)];
+      const challenge: DailyChallenge = {
+        id: this.currentChallengeId++,
+        prompt: randomPrompt,
+        date: today,
+        isActive: true,
+        responseCount: 0,
+        createdAt: new Date(),
+      };
+      this.dailyChallenges.set(challenge.id, challenge);
+    }
   }
 
   private hashIP(ipAddress: string): string {
@@ -211,10 +241,61 @@ export class MemStorage implements IStorage {
     return deletedCount;
   }
 
+  // Banned Polite Posts (Hall of Shame)
+  async createBannedPolitePost(insertPost: InsertBannedPolitePost, ipAddress: string): Promise<BannedPolitePost> {
+    const id = this.currentBannedPostId++;
+    const bannedPost: BannedPolitePost = {
+      ...insertPost,
+      id,
+      ipHash: this.hashIP(ipAddress),
+      createdAt: new Date(),
+    };
+    this.bannedPolitePosts.set(id, bannedPost);
+    return bannedPost;
+  }
+
+  async getBannedPolitePosts(limit: number = 10): Promise<BannedPolitePost[]> {
+    const posts = Array.from(this.bannedPolitePosts.values())
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, limit);
+    return posts;
+  }
+
+  // Daily Challenges
+  async getTodaysChallenge(): Promise<DailyChallenge | null> {
+    const today = new Date().toISOString().split('T')[0];
+    const challenge = Array.from(this.dailyChallenges.values())
+      .find(c => c.date === today && c.isActive);
+    return challenge || null;
+  }
+
+  async createDailyChallenge(insertChallenge: InsertDailyChallenge): Promise<DailyChallenge> {
+    const id = this.currentChallengeId++;
+    const challenge: DailyChallenge = {
+      ...insertChallenge,
+      id,
+      isActive: true,
+      responseCount: 0,
+      createdAt: new Date(),
+    };
+    this.dailyChallenges.set(id, challenge);
+    return challenge;
+  }
+
+  async incrementChallengeResponses(challengeId: number): Promise<void> {
+    const challenge = this.dailyChallenges.get(challengeId);
+    if (challenge) {
+      challenge.responseCount++;
+      this.dailyChallenges.set(challengeId, challenge);
+    }
+  }
+
   async getStatistics(): Promise<{
     totalPosts: number;
     postsToday: number;
     activeUsers: number;
+    avgRudenessScore: number;
+    bannedPoliteCount: number;
   }> {
     const totalPosts = this.posts.size;
     
@@ -231,11 +312,21 @@ export class MemStorage implements IStorage {
     );
     const uniqueIPs = new Set(recentVotes.map(vote => vote.ipHash));
     const activeUsers = uniqueIPs.size;
+
+    // Calculate average rudeness score
+    const posts = Array.from(this.posts.values());
+    const avgRudenessScore = posts.length > 0 
+      ? Math.round(posts.reduce((sum, post) => sum + post.rudenessScore, 0) / posts.length)
+      : 0;
+
+    const bannedPoliteCount = this.bannedPolitePosts.size;
     
     return {
       totalPosts,
       postsToday,
       activeUsers,
+      avgRudenessScore,
+      bannedPoliteCount,
     };
   }
 }
