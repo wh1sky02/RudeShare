@@ -117,6 +117,14 @@ export default function Home() {
     reactionMutation.mutate({ postId, reactionType });
   };
 
+  const handleDiscussion = (postId: number) => {
+    // For now, just show a toast - you can implement discussion modal later
+    toast({
+      title: "Discussion",
+      description: `Opening discussion for post ${postId}`,
+    });
+  };
+
   const displayPosts = searchQuery.length > 0 ? searchResults : posts;
   const isLoading = searchQuery.length > 0 ? searchLoading : postsLoading;
 
@@ -129,7 +137,7 @@ export default function Home() {
         onShowGuidelines={() => setGuidelinesModalOpen(true)}
       />
 
-      <main className="flex-1 max-w-4xl mx-auto px-4 py-3 sm:py-4 w-full">
+      <main className="flex-1 max-w-4xl mx-auto px-4 py-3 w-full">
         {/* Quick Action Bar */}
         {!searchQuery && (
           <div className="glass border border-border/50 rounded-xl p-3 mb-3">
@@ -252,6 +260,7 @@ export default function Home() {
                 post={post}
                 onVote={handleVote}
                 onReaction={handleReaction}
+                onDiscussion={handleDiscussion}
                 isVoting={voteMutation.isPending || reactionMutation.isPending}
               />
             ))}

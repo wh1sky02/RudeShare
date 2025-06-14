@@ -1,12 +1,14 @@
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useState } from "react";
 import type { Post } from "@shared/schema";
 
 interface PostCardProps {
   post: Post;
   onVote: (postId: number, voteType: 'up' | 'down') => void;
   onReaction: (postId: number, reactionType: string) => void;
+  onDiscussion: (postId: number) => void;
   isVoting: boolean;
 }
 
@@ -19,10 +21,17 @@ const REACTION_TYPES = [
   { type: 'legendary', emoji: '👑', label: 'Legendary' },
 ];
 
-export default function PostCard({ post, onVote, onReaction, isVoting }: PostCardProps) {
+export default function PostCard({ post, onVote, onReaction, onDiscussion, isVoting }: PostCardProps) {
+  const [showReactions, setShowReactions] = useState(false);
+  const [reactionTimeout, setReactionTimeout] = useState<NodeJS.Timeout | null>(null);
+
   const handleUpvote = () => onVote(post.id, 'up');
   const handleDownvote = () => onVote(post.id, 'down');
-  const handleReaction = (reactionType: string) => onReaction(post.id, reactionType);
+  const handleReaction = (reactionType: string) => {
+    onReaction(post.id, reactionType);
+    setShowReactions(false);
+  };
+  const handleDiscussion = () => onDiscussion(post.id);
 
   const timeAgo = formatDistanceToNow(new Date(post.createdAt), { addSuffix: true });
 
@@ -35,8 +44,30 @@ export default function PostCard({ post, onVote, onReaction, isVoting }: PostCar
     return 'text-green-400 bg-green-500/20';
   };
 
+  // Get most popular reaction
+  const reactions = post.reactions || {};
+  const totalReactions = Object.values(reactions).reduce((sum, count) => sum + count, 0);
+  const topReaction = Object.entries(reactions).reduce((top, [type, count]) => 
+    count > (top.count || 0) ? { type, count } : top, { type: '', count: 0 }
+  );
+  const topReactionEmoji = REACTION_TYPES.find(r => r.type === topReaction.type)?.emoji || '🔥';
+
+  const handleReactionHover = (show: boolean) => {
+    if (reactionTimeout) {
+      clearTimeout(reactionTimeout);
+      setReactionTimeout(null);
+    }
+
+    if (show) {
+      setShowReactions(true);
+    } else {
+      const timeout = setTimeout(() => setShowReactions(false), 300);
+      setReactionTimeout(timeout);
+    }
+  };
+
   return (
-    <Card className="glass p-3 sm:p-4 hover:shadow-lg transition-all duration-300 border-border/50">
+    <Card className="glass p-3 hover:shadow-lg transition-all duration-200 border-border/50">
       <div className="flex space-x-3">
         {/* Left Voting Column */}
         <div className="flex flex-col items-center space-y-1 pt-1">
@@ -91,7 +122,7 @@ export default function PostCard({ post, onVote, onReaction, isVoting }: PostCar
           {/* Post Content */}
           <div className="prose prose-slate max-w-none">
             {post.content && (
-              <p className="text-foreground leading-relaxed whitespace-pre-wrap text-sm sm:text-base">
+              <p className="text-foreground leading-relaxed whitespace-pre-wrap text-sm">
                 {post.content}
               </p>
             )}
@@ -104,7 +135,7 @@ export default function PostCard({ post, onVote, onReaction, isVoting }: PostCar
                     src={post.mediaUrl}
                     alt="User uploaded content"
                     className="max-w-full h-auto rounded-lg border border-border/30 shadow-md cursor-pointer"
-                    style={{ maxHeight: '300px' }}
+                    style={{ maxHeight: '200px' }}
                     onClick={() => window.open(post.mediaUrl!, '_blank')}
                   />
                 ) : post.mediaType === 'video' ? (
@@ -112,7 +143,7 @@ export default function PostCard({ post, onVote, onReaction, isVoting }: PostCar
                     src={post.mediaUrl}
                     controls
                     className="max-w-full h-auto rounded-lg border border-border/30 shadow-md"
-                    style={{ maxHeight: '300px' }}
+                    style={{ maxHeight: '200px' }}
                     playsInline
                   >
                     Your browser does not support the video tag.
@@ -122,29 +153,71 @@ export default function PostCard({ post, onVote, onReaction, isVoting }: PostCar
             )}
           </div>
 
-          {/* Reactions Bar */}
-          <div className="flex flex-wrap gap-1">
-            {REACTION_TYPES.map(({ type, emoji, label }) => {
-              const count = post.reactions?.[type] || 0;
-              return (
-                <Button
-                  key={type}
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleReaction(type)}
-                  disabled={isVoting}
-                  className={`text-xs px-2 py-1 h-6 rounded transition-all duration-200 ${
-                    count > 0 
-                      ? 'bg-accent/50 text-foreground border border-border/50' 
-                      : 'hover:bg-accent/30 text-muted-foreground'
-                  }`}
+          {/* Action Bar */}
+          <div className="flex items-center space-x-4 pt-1">
+            {/* Reaction Button with Hover */}
+            <div className="relative">
+              <Button
+                variant="ghost"
+                size="sm"
+                onMouseEnter={() => handleReactionHover(true)}
+                onMouseLeave={() => handleReactionHover(false)}
+                onClick={() => setShowReactions(!showReactions)}
+                className="text-muted-foreground hover:text-orange-400 px-2 py-1 h-7 rounded transition-all duration-200 hover:bg-orange-500/10"
+              >
+                <span className="mr-1.5">{totalReactions > 0 ? topReactionEmoji : '🔥'}</span>
+                <span className="text-xs">
+                  {totalReactions > 0 ? totalReactions : 'React'}
+                </span>
+              </Button>
+
+              {/* Reaction Popup */}
+              {showReactions && (
+                <div 
+                  className="absolute bottom-full left-0 mb-2 bg-card border border-border/50 rounded-lg shadow-xl p-2 flex space-x-1 z-50 animate-in fade-in-0 zoom-in-95 duration-200"
+                  onMouseEnter={() => handleReactionHover(true)}
+                  onMouseLeave={() => handleReactionHover(false)}
                 >
-                  <span className="mr-1">{emoji}</span>
-                  <span className="hidden sm:inline text-xs">{label}</span>
-                  {count > 0 && <span className="ml-1 font-bold">{count}</span>}
-                </Button>
-              );
-            })}
+                  {REACTION_TYPES.map(({ type, emoji, label }) => (
+                    <Button
+                      key={type}
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleReaction(type)}
+                      disabled={isVoting}
+                      className="text-lg hover:scale-125 transition-transform duration-200 p-1 h-8 w-8"
+                      title={label}
+                    >
+                      {emoji}
+                    </Button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Discussion Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleDiscussion}
+              className="text-muted-foreground hover:text-blue-400 px-2 py-1 h-7 rounded transition-all duration-200 hover:bg-blue-500/10"
+            >
+              <i className="fas fa-comment mr-1.5 text-xs"></i>
+              <span className="text-xs">Discuss</span>
+            </Button>
+
+            {/* Share Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                navigator.clipboard.writeText(`${window.location.origin}#${post.postId}`);
+              }}
+              className="text-muted-foreground hover:text-green-400 px-2 py-1 h-7 rounded transition-all duration-200 hover:bg-green-500/10"
+            >
+              <i className="fas fa-share mr-1.5 text-xs"></i>
+              <span className="text-xs">Share</span>
+            </Button>
           </div>
         </div>
       </div>

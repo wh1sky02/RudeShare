@@ -60,6 +60,15 @@
     -webkit-text-size-adjust: 100%;
     /* Improve touch scrolling */
     -webkit-overflow-scrolling: touch;
+    /* Prevent blinking/flashing */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Prevent flash of unstyled content and blinking */
+  html {
+    visibility: visible;
+    opacity: 1;
   }
 
   /* Modern scrollbar */
@@ -99,6 +108,14 @@
       -moz-osx-font-smoothing: grayscale;
     }
   }
+
+  /* Prevent blinking during transitions */
+  * {
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -webkit-transform: translate3d(0, 0, 0);
+    -moz-transform: translate3d(0, 0, 0);
+  }
 }
 
 /* Glass morphism effect */
@@ -131,10 +148,10 @@
   font-family: 'Font Awesome 6 Free', 'Font Awesome 6 Brands';
 }
 
-/* Modern card animations */
+/* Modern card animations - reduced for performance */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-5px); }
+  50% { transform: translateY(-2px); }
 }
 
 .float-animation {
@@ -144,6 +161,11 @@
 /* Touch manipulation for better mobile interaction */
 .touch-manipulation {
   touch-action: manipulation;
+}
+
+/* Smooth transitions without blinking */
+.transition-smooth {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Mobile-specific improvements */
@@ -183,5 +205,16 @@
   .glass {
     background: rgba(0, 0, 0, 0.8);
     border: 2px solid rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* Prevent blinking during page loads */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
