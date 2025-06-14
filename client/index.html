@@ -27,23 +27,35 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     
     <style>
+      /* Prevent any flash of unstyled content */
+      html {
+        background: linear-gradient(135deg, hsl(0, 0%, 5%) 0%, hsl(0, 0%, 8%) 100%);
+        color: hsl(0, 0%, 95%);
+      }
+      
       body {
         font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, hsl(0, 0%, 5%) 0%, hsl(0, 0%, 8%) 100%);
+        color: hsl(0, 0%, 95%);
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        /* Prevent blinking/flashing */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        /* Prevent layout shifts */
+        overflow-x: hidden;
       }
       
-      /* Prevent flash of unstyled content */
-      .loading {
-        opacity: 0;
-        transition: opacity 0.3s ease;
-      }
-      
-      .loaded {
+      /* Hide content until React loads */
+      #root {
         opacity: 1;
+        transition: none;
       }
       
       /* Loading spinner */
       .spinner {
-        border: 2px solid #f3f3f3;
+        border: 2px solid #333;
         border-top: 2px solid #dc2626;
         border-radius: 50%;
         width: 40px;
@@ -56,28 +68,28 @@
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
       }
+      
+      /* Prevent any transitions during load */
+      .loading * {
+        transition: none !important;
+        animation: none !important;
+      }
     </style>
   </head>
-  <body class="loading">
+  <body>
     <div id="root">
-      <!-- Loading fallback -->
+      <!-- Minimal loading fallback -->
       <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, hsl(0, 0%, 5%) 0%, hsl(0, 0%, 8%) 100%);">
         <div style="text-align: center; color: #dc2626;">
           <div class="spinner"></div>
-          <p style="margin-top: 20px; font-family: 'Inter', sans-serif;">Loading RudeShare...</p>
+          <p style="margin-top: 20px; font-family: 'Inter', sans-serif; font-size: 14px;">Loading RudeShare...</p>
         </div>
       </div>
     </div>
     <script type="module" src="/src/main.tsx"></script>
     
     <script>
-      // Remove loading class when page is loaded
-      window.addEventListener('load', function() {
-        document.body.classList.remove('loading');
-        document.body.classList.add('loaded');
-      });
-      
-      // Prevent zoom on double tap on iOS
+      // Prevent double-tap zoom on iOS
       let lastTouchEnd = 0;
       document.addEventListener('touchend', function (event) {
         const now = (new Date()).getTime();
@@ -86,9 +98,11 @@
         }
         lastTouchEnd = now;
       }, false);
+      
+      // Prevent context menu on long press
+      document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+      });
     </script>
-    
-    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
-    <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
   </body>
 </html>
