@@ -23,10 +23,11 @@ FreedomShare is a full-stack anonymous social media platform built with modern w
 ## Key Components
 
 ### Database Schema
-- **Posts Table**: Stores post content with anonymous IDs, scores, and timestamps
+- **Posts Table**: Stores post content with anonymous IDs, scores, timestamps, and media URLs
 - **Votes Table**: Tracks upvotes/downvotes with IP-based deduplication
 - **Reports Table**: Handles content moderation reports
 - **IP Hashing**: Uses SHA-256 to prevent duplicate votes while maintaining anonymity
+- **Media Support**: Image and video uploads with file size limits (10MB images, 50MB videos)
 
 ### Authentication & Privacy
 - **No User Accounts**: Completely anonymous posting system
@@ -34,26 +35,30 @@ FreedomShare is a full-stack anonymous social media platform built with modern w
 - **Anonymous Post IDs**: Generated unique identifiers like #A7B9C2 for each post
 
 ### API Structure
-- `GET /api/posts` - Retrieve all posts
+- `GET /api/posts?sort=newest|oldest|popular|controversial` - Retrieve all posts with sorting
 - `GET /api/posts/search?q=query` - Search posts by content
-- `POST /api/posts` - Create new anonymous post
+- `POST /api/posts` - Create new anonymous post (with optional media)
+- `POST /api/upload` - Upload images/videos (10MB/50MB limits)
 - `POST /api/posts/:id/vote` - Vote on posts (up/down)
 - `POST /api/posts/:id/report` - Report inappropriate content
+- `POST /api/cleanup` - Manual cleanup of old posts
 - `GET /api/statistics` - Platform usage statistics
 
 ### Frontend Components
-- **Header**: Search functionality and navigation
-- **PostCard**: Individual post display with voting controls
-- **NewPostModal**: Post creation interface
+- **Header**: Search functionality, navigation, and sorting controls
+- **PostCard**: Individual post display with voting controls and media support
+- **NewPostModal**: Post creation interface with file upload capabilities
 - **GuidelinesModal**: Community guidelines display
 - **Footer**: Platform information and links
 
 ## Data Flow
 
-1. **Post Creation**: User submits content → Validation → Database storage → Anonymous ID generation
-2. **Voting System**: User votes → IP hash check → Vote recording → Score update
-3. **Content Moderation**: Report submission → Database logging → Automatic flagging at threshold
-4. **Search**: Query processing → Database search → Filtered results return
+1. **Post Creation**: User submits content/media → File upload (if applicable) → Validation → Database storage → Anonymous ID generation
+2. **Media Upload**: File selection → Size/type validation → Multer processing → File storage → URL generation
+3. **Voting System**: User votes → IP hash check → Vote recording → Score update
+4. **Content Moderation**: Report submission → Database logging → Automatic flagging at threshold
+5. **Search & Sorting**: Query/sort processing → Database filtering → Results return with media
+6. **Auto Cleanup**: Daily scheduled task removes posts >3 days old with no votes
 
 ## External Dependencies
 
@@ -63,6 +68,8 @@ FreedomShare is a full-stack anonymous social media platform built with modern w
 - **@tanstack/react-query**: Server state management
 - **@radix-ui/***: Accessible UI component primitives
 - **wouter**: Lightweight React router
+- **multer**: File upload handling middleware
+- **express**: Server framework with static file serving
 
 ### Development Tools
 - **Vite**: Frontend build tool and dev server
@@ -94,7 +101,8 @@ FreedomShare is a full-stack anonymous social media platform built with modern w
 - **Port Configuration**: Internal 5000 → External 80
 
 ## Changelog
-- June 14, 2025. Initial setup
+- June 14, 2025: Initial setup with basic anonymous posting
+- June 14, 2025: Added media upload (images/videos), sorting features, and auto-cleanup of old posts
 
 ## User Preferences
 
