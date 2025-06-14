@@ -79,9 +79,20 @@ export default function NewPostModal({ open, onOpenChange }: NewPostModalProps) 
       });
     },
     onError: (error: any) => {
+      let title = "Failed to create post";
+      let description = error.message || "Please try again.";
+      
+      if (error.message && error.message.includes("BANNED FOR BEING TOO POLITE")) {
+        title = "🚫 POLITENESS VIOLATION";
+        description = error.message.replace("BANNED FOR BEING TOO POLITE: ", "");
+      } else if (error.message && error.message.includes("death threats")) {
+        title = "Content Banned";
+        description = "Death threats and harassment are not allowed.";
+      }
+      
       toast({
-        title: "Failed to create post",
-        description: error.message || "Please try again.",
+        title,
+        description,
         variant: "destructive",
       });
     },
@@ -178,7 +189,7 @@ export default function NewPostModal({ open, onOpenChange }: NewPostModalProps) 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Textarea
-              placeholder="What's on your mind? Remember to be respectful and follow community guidelines..."
+              placeholder="What's pissing you off today? Be brutal, be honest, be rude. No nice crap allowed..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
               className="min-h-32 resize-none"

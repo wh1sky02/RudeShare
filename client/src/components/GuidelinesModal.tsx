@@ -20,55 +20,57 @@ export default function GuidelinesModal({ open, onOpenChange }: GuidelinesModalP
         </DialogHeader>
 
         <div className="prose prose-slate max-w-none space-y-4">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <h4 className="text-green-800 font-medium mb-2">Our Mission</h4>
-            <p className="text-green-700 text-sm">
-              FreedomShare exists to provide a space for authentic expression without the constraints 
-              of identity-based social networks. We believe in the power of ideas over personalities.
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <h4 className="text-red-800 font-medium mb-2">Our Mission</h4>
+            <p className="text-red-700 text-sm">
+              This is a platform for brutal honesty and unfiltered opinions. No sugar-coating, 
+              no fake politeness. Say what you really think without the social BS.
             </p>
           </div>
 
           <div>
-            <h4 className="font-medium text-slate-800 mb-3">What We Encourage:</h4>
+            <h4 className="font-medium text-slate-800 mb-3">What We DEMAND:</h4>
             <ul className="text-sm text-slate-700 space-y-1">
-              <li>• Thoughtful discussions and diverse perspectives</li>
-              <li>• Constructive criticism and helpful feedback</li>
-              <li>• Sharing knowledge and experiences</li>
-              <li>• Supporting the open-source community</li>
+              <li>• Brutal honesty and raw opinions</li>
+              <li>• Aggressive criticism and harsh feedback</li>
+              <li>• Calling out stupidity when you see it</li>
+              <li>• Zero tolerance for fake niceness</li>
+              <li>• Savage roasts and mean comebacks</li>
             </ul>
           </div>
 
           <div>
-            <h4 className="font-medium text-slate-800 mb-3">What We Don't Allow:</h4>
+            <h4 className="font-medium text-slate-800 mb-3">BANNED BEHAVIOR:</h4>
             <ul className="text-sm text-slate-700 space-y-1">
-              <li>• Harassment, threats, or hate speech</li>
-              <li>• Spam, advertising, or promotional content</li>
-              <li>• Sharing personal information (yours or others')</li>
-              <li>• Illegal content or activities</li>
-              <li>• Deliberately misleading information</li>
+              <li>• Being polite or overly nice (INSTANT BAN)</li>
+              <li>• "Please" and "thank you" garbage</li>
+              <li>• Wholesome content or positivity</li>
+              <li>• Death threats or harassment (legal reasons)</li>
+              <li>• Fake compliments or encouragement</li>
             </ul>
           </div>
 
           <div>
-            <h4 className="font-medium text-slate-800 mb-3">Moderation:</h4>
+            <h4 className="font-medium text-slate-800 mb-3">Auto-Moderation:</h4>
             <p className="text-sm text-slate-700 mb-2">
-              Our moderation is community-driven and transparent:
+              Our AI automatically detects and bans soft content:
             </p>
             <ul className="text-sm text-slate-700 space-y-1">
-              <li>• Use the report button for problematic content</li>
-              <li>• Community voting helps surface quality content</li>
-              <li>• Moderation decisions are logged publicly</li>
-              <li>• Appeals process available for disputed actions</li>
+              <li>• Polite language triggers instant removal</li>
+              <li>• Kindness detection algorithm always running</li>
+              <li>• Community votes for the most savage content</li>
+              <li>• Only harsh criticism gets promoted</li>
+              <li>• Death threats still get you banned (legal issues)</li>
             </ul>
           </div>
 
-          <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
-            <h4 className="font-medium text-slate-800 mb-2">Technical Notes:</h4>
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+            <h4 className="font-medium text-slate-800 mb-2">Warning:</h4>
             <ul className="text-sm text-slate-600 space-y-1">
-              <li>• Posts are stored with timestamps only</li>
-              <li>• No IP logging or user tracking</li>
-              <li>• Open source codebase available on GitHub</li>
-              <li>• Hosted on privacy-focused infrastructure</li>
+              <li>• This platform is for thick-skinned people only</li>
+              <li>• Expect to get roasted for everything you post</li>
+              <li>• No safe spaces or trigger warnings</li>
+              <li>• If you can't handle it, leave now</li>
             </ul>
           </div>
         </div>

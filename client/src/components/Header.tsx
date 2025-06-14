@@ -18,11 +18,11 @@ export default function Header({ searchQuery, onSearchChange, onNewPost, onShowG
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <h1 className="text-xl font-semibold text-slate-800">
-              <i className="fas fa-dove text-blue-600 mr-2"></i>
-              FreedomShare
+              <i className="fas fa-fire text-red-600 mr-2"></i>
+              RudeShare
             </h1>
             <span className="text-sm text-slate-500 hidden sm:inline">
-              Anonymous. Open. Free.
+              Brutal. Honest. No BS.
             </span>
           </div>
 

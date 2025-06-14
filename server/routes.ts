@@ -7,6 +7,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import express from "express";
+import { moderateContent, generateRudeResponse } from "./politeness-detector";
 
 // Configure multer for file uploads
 const upload = multer({
@@ -103,7 +104,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create new post
+  // Create new post with politeness detection
   app.post("/api/posts", async (req, res) => {
     try {
       const validatedData = insertPostSchema.parse(req.body);
@@ -115,6 +116,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (validatedData.content.length > 2000) {
         return res.status(400).json({ message: "Post content too long (max 2000 characters)" });
+      }
+      
+      // Moderate content for politeness and illegal content
+      const moderation = moderateContent(validatedData.content);
+      
+      if (moderation.severity === 'banned_illegal') {
+        return res.status(403).json({ 
+          message: "Content banned for legal reasons (death threats/harassment)",
+          flaggedWords: moderation.flaggedWords
+        });
+      }
+      
+      if (moderation.severity === 'banned_polite') {
+        const rudeResponse = generateRudeResponse(moderation.flaggedWords);
+        return res.status(403).json({ 
+          message: `BANNED FOR BEING TOO POLITE: ${rudeResponse}`,
+          flaggedWords: moderation.flaggedWords,
+          reason: "politeness_violation"
+        });
       }
       
       const clientIP = req.ip || req.connection.remoteAddress || '127.0.0.1';
