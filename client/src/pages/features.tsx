@@ -20,7 +20,7 @@ export default function Features() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background">
       <Header
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -28,9 +28,9 @@ export default function Features() {
         onShowGuidelines={() => setGuidelinesModalOpen(true)}
       />
 
-      <main className="flex-1 max-w-4xl mx-auto px-4 py-3 sm:py-4 w-full">
+      <main className="max-w-4xl mx-auto px-4 py-4 sm:py-6">
         {/* Page Header */}
-        <div className="mb-4 sm:mb-6">
+        <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold gradient-text mb-2">
             <i className="fas fa-fire mr-3"></i>
             Brutal Features
@@ -41,12 +41,12 @@ export default function Features() {
         </div>
 
         {/* Daily Challenge Section */}
-        <div className="mb-6 sm:mb-8">
+        <div className="mb-8 sm:mb-12">
           <DailyChallenge onRespondToChallenge={handleRespondToChallenge} />
         </div>
 
         {/* Hall of Shame Section */}
-        <div className="mb-6 sm:mb-8">
+        <div className="mb-8 sm:mb-12">
           <HallOfShame />
         </div>
 
@@ -54,7 +54,7 @@ export default function Features() {
         <div className="text-center">
           <Button 
             variant="outline" 
-            className="px-6 py-2 border-border/50 hover:border-primary/50 hover:bg-accent/30 transition-all duration-200"
+            className="px-6 py-2 border-border/50 hover:border-primary/50 hover:bg-accent/30 transition-all duration-200 touch-manipulation"
             onClick={() => navigate("/")}
           >
             <i className="fas fa-arrow-left mr-2"></i>
