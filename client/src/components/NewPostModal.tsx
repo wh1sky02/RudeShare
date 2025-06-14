@@ -181,33 +181,42 @@ export default function NewPostModal({ open, onOpenChange }: NewPostModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto glass border-border/50">
         <DialogHeader>
-          <DialogTitle>Share Your Thoughts</DialogTitle>
+          <DialogTitle className="text-2xl font-bold gradient-text">
+            <i className="fas fa-fire mr-3 text-primary"></i>
+            Drop Your Brutal Take
+          </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <Textarea
               placeholder="What's pissing you off today? Be brutal, be honest, be rude. No nice crap allowed..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="min-h-32 resize-none"
+              className="min-h-40 resize-none bg-card border-border/50 focus:border-primary/50 transition-all duration-200 text-lg"
               maxLength={2000}
             />
-            <div className="flex justify-between items-center mt-2 text-sm text-slate-500">
-              <span>Your post will remain anonymous</span>
-              <span className={isOverLimit ? "text-red-500" : ""}>
+            <div className="flex justify-between items-center mt-3 text-sm">
+              <span className="text-muted-foreground font-medium">
+                <i className="fas fa-user-secret mr-2"></i>
+                Your post will remain anonymous
+              </span>
+              <span className={`font-mono px-2 py-1 rounded-full ${isOverLimit ? "text-red-400 bg-red-500/10" : "text-muted-foreground bg-accent/30"}`}>
                 {characterCount}/2000
               </span>
             </div>
           </div>
 
           {/* File Upload Section */}
-          <div className="border border-slate-200 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="font-medium text-slate-800">Add Media</h4>
-              <div className="text-xs text-slate-500">
+          <div className="glass border border-border/50 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="font-semibold text-foreground text-lg">
+                <i className="fas fa-image mr-2 text-primary"></i>
+                Add Media
+              </h4>
+              <div className="text-xs text-muted-foreground font-mono bg-accent/30 px-3 py-1 rounded-full">
                 Images: max 10MB • Videos: max 50MB
               </div>
             </div>

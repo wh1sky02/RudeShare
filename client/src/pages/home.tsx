@@ -103,7 +103,7 @@ export default function Home() {
   const isLoading = searchQuery.length > 0 ? searchLoading : postsLoading;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
       <Header
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -111,68 +111,68 @@ export default function Home() {
         onShowGuidelines={() => setGuidelinesModalOpen(true)}
       />
 
-      <main className="max-w-4xl mx-auto px-4 py-6">
+      <main className="max-w-6xl mx-auto px-6 py-8">
         {/* Feed Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-medium text-slate-800">
-              {searchQuery ? `Search Results for "${searchQuery}"` : "Recent Posts"}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold gradient-text">
+              {searchQuery ? `Search Results for "${searchQuery}"` : "Latest Brutal Takes"}
             </h2>
             <div className="flex items-center space-x-4">
               {!searchQuery && (
                 <Select value={sortBy} onValueChange={(value: 'newest' | 'oldest' | 'popular' | 'controversial') => setSortBy(value)}>
-                  <SelectTrigger className="w-40">
+                  <SelectTrigger className="w-48 bg-card border-border/50 hover:border-primary/50 transition-colors">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-popover border-border/50">
                     <SelectItem value="newest">
-                      <i className="fas fa-clock mr-2"></i>
+                      <i className="fas fa-clock mr-2 text-primary"></i>
                       Newest
                     </SelectItem>
                     <SelectItem value="oldest">
-                      <i className="fas fa-history mr-2"></i>
+                      <i className="fas fa-history mr-2 text-primary"></i>
                       Oldest
                     </SelectItem>
                     <SelectItem value="popular">
-                      <i className="fas fa-fire mr-2"></i>
+                      <i className="fas fa-fire mr-2 text-primary"></i>
                       Popular
                     </SelectItem>
                     <SelectItem value="controversial">
-                      <i className="fas fa-comments mr-2"></i>
+                      <i className="fas fa-comments mr-2 text-primary"></i>
                       Most Discussed
                     </SelectItem>
                   </SelectContent>
                 </Select>
               )}
-              <div className="flex items-center space-x-2 text-sm text-slate-500">
-                <i className="fas fa-sync-alt"></i>
-                <span>Live</span>
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground bg-accent/30 px-3 py-2 rounded-full">
+                <i className="fas fa-sync-alt text-green-400"></i>
+                <span className="font-medium">Live</span>
               </div>
             </div>
           </div>
 
           {/* Statistics */}
           {stats && !searchQuery && (
-            <Card className="mb-6">
-              <CardContent className="p-4">
-                <div className="grid grid-cols-3 gap-4 text-center">
-                  <div>
-                    <div className="text-xl font-semibold text-slate-800">
+            <Card className="glass mb-8 border-border/50 glow-red">
+              <CardContent className="p-6">
+                <div className="grid grid-cols-3 gap-6 text-center">
+                  <div className="group">
+                    <div className="text-3xl font-bold gradient-text mb-2">
                       {stats.totalPosts.toLocaleString()}
                     </div>
-                    <div className="text-sm text-slate-500">Total Posts</div>
+                    <div className="text-sm text-muted-foreground font-medium tracking-wide">Brutal Posts</div>
                   </div>
-                  <div>
-                    <div className="text-xl font-semibold text-slate-800">
+                  <div className="group border-x border-border/30">
+                    <div className="text-3xl font-bold gradient-text mb-2">
                       {stats.postsToday.toLocaleString()}
                     </div>
-                    <div className="text-sm text-slate-500">Posts Today</div>
+                    <div className="text-sm text-muted-foreground font-medium tracking-wide">Today's Rants</div>
                   </div>
-                  <div>
-                    <div className="text-xl font-semibold text-slate-800">
+                  <div className="group">
+                    <div className="text-3xl font-bold gradient-text mb-2">
                       {stats.activeUsers.toLocaleString()}
                     </div>
-                    <div className="text-sm text-slate-500">Active Now</div>
+                    <div className="text-sm text-muted-foreground font-medium tracking-wide">Savage Users</div>
                   </div>
                 </div>
               </CardContent>
@@ -182,24 +182,43 @@ export default function Home() {
 
         {/* Posts Feed */}
         {isLoading ? (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {[...Array(3)].map((_, i) => (
-              <Card key={i} className="p-4">
+              <Card key={i} className="glass p-6 border-border/50">
                 <div className="animate-pulse">
-                  <div className="h-4 bg-slate-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-4 bg-slate-200 rounded w-1/2"></div>
+                  <div className="h-6 bg-accent/50 rounded-lg w-3/4 mb-4"></div>
+                  <div className="h-4 bg-accent/30 rounded w-1/2 mb-2"></div>
+                  <div className="h-4 bg-accent/30 rounded w-2/3"></div>
                 </div>
               </Card>
             ))}
           </div>
         ) : displayPosts.length === 0 ? (
-          <Card className="p-8 text-center">
-            <div className="text-slate-500">
-              {searchQuery ? "No posts found matching your search." : "No posts yet. Be the first to share something!"}
+          <Card className="glass p-12 text-center border-border/50">
+            <div className="text-muted-foreground text-lg">
+              {searchQuery ? (
+                <div className="space-y-2">
+                  <i className="fas fa-search text-3xl mb-4 text-primary"></i>
+                  <div>No brutal posts found matching your search.</div>
+                  <div className="text-sm">Try different keywords or check your spelling.</div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <i className="fas fa-fire text-4xl mb-4 text-primary"></i>
+                  <div className="text-xl font-semibold">No posts yet!</div>
+                  <div>Be the first to drop some brutal honesty.</div>
+                  <Button 
+                    onClick={() => setPostModalOpen(true)}
+                    className="mt-4 bg-primary hover:bg-primary/90 glow-red-hover"
+                  >
+                    Start the Chaos
+                  </Button>
+                </div>
+              )}
             </div>
           </Card>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {displayPosts.map((post) => (
               <PostCard
                 key={post.id}
@@ -215,9 +234,13 @@ export default function Home() {
 
         {/* Load More Button */}
         {!searchQuery && displayPosts.length > 0 && (
-          <div className="text-center mt-8">
-            <Button variant="outline" className="px-6">
-              Load More Posts
+          <div className="text-center mt-12">
+            <Button 
+              variant="outline" 
+              className="px-8 py-3 border-border/50 hover:border-primary/50 hover:bg-accent/30 transition-all duration-200 font-medium"
+            >
+              <i className="fas fa-chevron-down mr-2"></i>
+              Load More Savage Takes
             </Button>
           </div>
         )}
