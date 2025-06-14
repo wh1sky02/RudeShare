@@ -106,6 +106,10 @@ RudeShare is a full-stack anonymous social media platform designed for brutal ho
 - June 14, 2025: Initial setup with basic anonymous posting (FreedomShare)
 - June 14, 2025: Added media upload (images/videos), sorting features, and auto-cleanup of old posts
 - June 14, 2025: Transformed to RudeShare - brutal honesty platform with automatic politeness detection and banning system
+- June 14, 2025: Implemented three brutal features:
+  * Escalating Rudeness Meter (0-100% scoring with auto-boost for savage posts)
+  * Softness Hall of Shame (displays banned polite posts with AI responses)
+  * Daily Brutal Challenges (rotating prompts to encourage savage content)
 
 ## User Preferences
 
