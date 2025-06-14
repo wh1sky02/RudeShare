@@ -1,11 +1,11 @@
-import { posts, votes, reports, type Post, type InsertPost, type Vote, type InsertVote, type Report, type InsertReport } from "@shared/schema";
+import { posts, votes, reports, bannedPolitePosts, dailyChallenges, type Post, type InsertPost, type Vote, type InsertVote, type Report, type InsertReport, type BannedPolitePost, type InsertBannedPolitePost, type DailyChallenge, type InsertDailyChallenge } from "@shared/schema";
 import crypto from "crypto";
 
 export interface IStorage {
   // Posts
   getAllPosts(sortBy?: 'newest' | 'oldest' | 'popular' | 'controversial'): Promise<Post[]>;
   getPostById(id: number): Promise<Post | undefined>;
-  createPost(post: InsertPost, ipAddress: string): Promise<Post>;
+  createPost(post: InsertPost, ipAddress: string, rudenessScore: number): Promise<Post>;
   searchPosts(query: string): Promise<Post[]>;
   cleanupOldPosts(): Promise<number>; // Returns number of deleted posts
   
@@ -16,11 +16,22 @@ export interface IStorage {
   // Reports
   createReport(report: InsertReport, ipAddress: string): Promise<Report>;
   
+  // Banned Polite Posts (Hall of Shame)
+  createBannedPolitePost(post: InsertBannedPolitePost, ipAddress: string): Promise<BannedPolitePost>;
+  getBannedPolitePosts(limit?: number): Promise<BannedPolitePost[]>;
+  
+  // Daily Challenges
+  getTodaysChallenge(): Promise<DailyChallenge | null>;
+  createDailyChallenge(challenge: InsertDailyChallenge): Promise<DailyChallenge>;
+  incrementChallengeResponses(challengeId: number): Promise<void>;
+  
   // Statistics
   getStatistics(): Promise<{
     totalPosts: number;
     postsToday: number;
     activeUsers: number;
+    avgRudenessScore: number;
+    bannedPoliteCount: number;
   }>;
 }
 
@@ -28,9 +39,13 @@ export class MemStorage implements IStorage {
   private posts: Map<number, Post>;
   private votes: Map<number, Vote>;
   private reports: Map<number, Report>;
+  private bannedPolitePosts: Map<number, BannedPolitePost>;
+  private dailyChallenges: Map<number, DailyChallenge>;
   private currentPostId: number;
   private currentVoteId: number;
   private currentReportId: number;
+  private currentBannedPostId: number;
+  private currentChallengeId: number;
 
   constructor() {
     this.posts = new Map();
