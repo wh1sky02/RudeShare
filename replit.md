@@ -27,7 +27,7 @@ RudeShare is a full-stack anonymous social media platform designed for brutal ho
 - **Votes Table**: Tracks upvotes/downvotes with IP-based deduplication
 - **Reports Table**: Handles content moderation reports
 - **IP Hashing**: Uses SHA-256 to prevent duplicate votes while maintaining anonymity
-- **Media Support**: Image and video uploads with file size limits (10MB images, 50MB videos)
+- **Media Support**: Image uploads only with 10MB file size limit
 
 ### Content Moderation & Privacy
 - **No User Accounts**: Completely anonymous posting system

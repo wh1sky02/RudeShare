@@ -101,35 +101,24 @@ export default function NewPostModal({ open, onOpenChange }: NewPostModalProps) 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Check file type and size
+      // Check file type and size - images only
       const isImage = file.type.startsWith('image/');
-      const isVideo = file.type.startsWith('video/');
       
-      if (!isImage && !isVideo) {
+      if (!isImage) {
         toast({
           title: "Invalid file type",
-          description: "Please select an image or video file.",
+          description: "Please select an image file only.",
           variant: "destructive",
         });
         return;
       }
       
       const maxImageSize = 10 * 1024 * 1024; // 10MB
-      const maxVideoSize = 50 * 1024 * 1024; // 50MB
       
-      if (isImage && file.size > maxImageSize) {
+      if (file.size > maxImageSize) {
         toast({
-          title: "File too large",
+          title: "Image too large",
           description: "Images must be under 10MB.",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      if (isVideo && file.size > maxVideoSize) {
-        toast({
-          title: "File too large",
-          description: "Videos must be under 50MB.",
           variant: "destructive",
         });
         return;
@@ -217,7 +206,7 @@ export default function NewPostModal({ open, onOpenChange }: NewPostModalProps) 
                 Add Media
               </h4>
               <div className="text-xs text-muted-foreground font-mono bg-accent/30 px-3 py-1 rounded-full">
-                Images: max 10MB • Videos: max 50MB
+                Images only: max 10MB
               </div>
             </div>
             
@@ -225,7 +214,7 @@ export default function NewPostModal({ open, onOpenChange }: NewPostModalProps) 
             <Input
               ref={fileInputRef}
               type="file"
-              accept="image/*,video/*"
+              accept="image/*"
               onChange={handleFileSelect}
               className="mb-3"
             />

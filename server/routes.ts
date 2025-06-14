@@ -9,21 +9,21 @@ import fs from "fs";
 import express from "express";
 import { moderateContent, generateRudeResponse } from "./politeness-detector";
 
-// Configure multer for file uploads
+// Configure multer for image uploads only
 const upload = multer({
   dest: 'uploads/',
   limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB limit
+    fileSize: 10 * 1024 * 1024, // 10MB limit for images
   },
   fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif|mp4|webm|mov/;
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
+    const mimetype = file.mimetype.startsWith('image/');
     
     if (mimetype && extname) {
       return cb(null, true);
     } else {
-      cb(new Error('Only images (jpeg, jpg, png, gif) and videos (mp4, webm, mov) are allowed'));
+      cb(new Error('Only images (jpeg, jpg, png, gif, webp) are allowed'));
     }
   }
 });
