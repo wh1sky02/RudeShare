@@ -11,6 +11,14 @@ export default function HallOfShame() {
       if (!response.ok) throw new Error('Failed to fetch hall of shame');
       return response.json();
     },
+    // DISABLE ALL AUTO-REFRESH
+    refetchInterval: false,
+    refetchIntervalInBackground: false,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    staleTime: Infinity,
+    gcTime: Infinity,
   });
 
   if (isLoading) {

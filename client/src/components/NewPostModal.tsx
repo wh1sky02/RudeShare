@@ -26,7 +26,7 @@ export default function NewPostModal({ open, onOpenChange }: NewPostModalProps) 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  // Upload file mutation
+  // Upload file mutation - NO AUTO REFRESH
   const uploadFileMutation = useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
@@ -67,8 +67,15 @@ export default function NewPostModal({ open, onOpenChange }: NewPostModalProps) 
       await apiRequest('POST', '/api/posts', postData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/statistics"] });
+      // MANUAL INVALIDATION - NO AUTO REFRESH
+      queryClient.invalidateQueries({ 
+        queryKey: ["/api/posts"],
+        refetchType: 'none' // Prevent automatic refetch
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ["/api/statistics"],
+        refetchType: 'none' // Prevent automatic refetch
+      });
       setContent("");
       setUploadedMedia(null);
       setSelectedFile(null);

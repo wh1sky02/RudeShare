@@ -45,13 +45,25 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       queryFn: getQueryFn({ on401: "throw" }),
+      // DISABLE ALL AUTOMATIC REFRESHING
       refetchInterval: false,
+      refetchIntervalInBackground: false,
+      refetchOnMount: false,
       refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
       staleTime: Infinity,
+      gcTime: Infinity,
       retry: false,
+      retryOnMount: false,
+      // DISABLE BACKGROUND UPDATES
+      notifyOnChangeProps: [],
+      // MANUAL FETCH ONLY
+      enabled: true,
     },
     mutations: {
       retry: false,
+      // DISABLE AUTOMATIC RETRIES
+      retryDelay: 0,
     },
   },
 });
