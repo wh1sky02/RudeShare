@@ -15,14 +15,6 @@ export default function DailyChallenge({ onRespondToChallenge }: DailyChallengeP
       if (!response.ok) throw new Error('Failed to fetch daily challenge');
       return response.json();
     },
-    // DISABLE ALL AUTO-REFRESH
-    refetchInterval: false,
-    refetchIntervalInBackground: false,
-    refetchOnMount: true,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    staleTime: Infinity,
-    gcTime: Infinity,
   });
 
   if (isLoading) {

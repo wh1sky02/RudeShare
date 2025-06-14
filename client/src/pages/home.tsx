@@ -19,25 +19,17 @@ export default function Home() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // Fetch posts - NO AUTOMATIC REFRESHING
+  // Fetch posts - NO LOADING STATES
   const { data: posts = [], isLoading: postsLoading } = useQuery({
     queryKey: ['/api/posts', sortBy],
     queryFn: async () => {
       const response = await fetch(`/api/posts?sort=${sortBy}`);
       if (!response.ok) throw new Error('Failed to fetch posts');
       return response.json() as Promise<Post[]>;
-    },
-    // DISABLE ALL AUTO-REFRESH
-    refetchInterval: false,
-    refetchIntervalInBackground: false,
-    refetchOnMount: true, // Only fetch on initial mount
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    staleTime: Infinity,
-    gcTime: Infinity,
+    }
   });
 
-  // Search posts - NO AUTOMATIC REFRESHING
+  // Search posts - NO LOADING STATES
   const { data: searchResults = [], isLoading: searchLoading } = useQuery({
     queryKey: ['/api/posts/search', searchQuery],
     queryFn: async () => {
@@ -46,36 +38,20 @@ export default function Home() {
       if (!response.ok) throw new Error('Failed to search posts');
       return response.json() as Promise<Post[]>;
     },
-    enabled: searchQuery.length > 0,
-    // DISABLE ALL AUTO-REFRESH
-    refetchInterval: false,
-    refetchIntervalInBackground: false,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    staleTime: Infinity,
-    gcTime: Infinity,
+    enabled: searchQuery.length > 0
   });
 
-  // Fetch statistics - NO AUTOMATIC REFRESHING
+  // Fetch statistics - NO LOADING STATES
   const { data: stats } = useQuery({
     queryKey: ['/api/statistics'],
     queryFn: async () => {
       const response = await fetch('/api/statistics');
       if (!response.ok) throw new Error('Failed to fetch statistics');
       return response.json();
-    },
-    // DISABLE ALL AUTO-REFRESH
-    refetchInterval: false,
-    refetchIntervalInBackground: false,
-    refetchOnMount: true, // Only fetch on initial mount
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    staleTime: Infinity,
-    gcTime: Infinity,
+    }
   });
 
-  // Vote mutation - MANUAL INVALIDATION ONLY
+  // Vote mutation
   const voteMutation = useMutation({
     mutationFn: async ({ postId, voteType }: { postId: number; voteType: 'up' | 'down' }) => {
       const response = await fetch(`/api/posts/${postId}/vote`, {
@@ -92,11 +68,8 @@ export default function Home() {
       return response.json();
     },
     onSuccess: () => {
-      // MANUAL INVALIDATION - NO AUTO REFRESH
-      queryClient.invalidateQueries({ 
-        queryKey: ['/api/posts'],
-        refetchType: 'none' // Prevent automatic refetch
-      });
+      queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/statistics'] });
     },
     onError: (error: Error) => {
       toast({
@@ -107,7 +80,7 @@ export default function Home() {
     },
   });
 
-  // Reaction mutation - MANUAL INVALIDATION ONLY
+  // Reaction mutation
   const reactionMutation = useMutation({
     mutationFn: async ({ postId, reactionType }: { postId: number; reactionType: string }) => {
       const response = await fetch(`/api/posts/${postId}/react`, {
@@ -124,11 +97,8 @@ export default function Home() {
       return response.json();
     },
     onSuccess: () => {
-      // MANUAL INVALIDATION - NO AUTO REFRESH
-      queryClient.invalidateQueries({ 
-        queryKey: ['/api/posts'],
-        refetchType: 'none' // Prevent automatic refetch
-      });
+      queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/statistics'] });
     },
     onError: (error: Error) => {
       toast({
