@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useLocation } from "wouter";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import DailyChallenge from "@/components/DailyChallenge";
@@ -11,6 +12,7 @@ export default function Features() {
   const [searchQuery, setSearchQuery] = useState("");
   const [postModalOpen, setPostModalOpen] = useState(false);
   const [guidelinesModalOpen, setGuidelinesModalOpen] = useState(false);
+  const [location, navigate] = useLocation();
 
   const handleRespondToChallenge = (prompt: string) => {
     setPostModalOpen(true);
@@ -53,7 +55,7 @@ export default function Features() {
           <Button 
             variant="outline" 
             className="px-6 py-2 border-border/50 hover:border-primary/50 hover:bg-accent/30 transition-all duration-200 touch-manipulation"
-            onClick={() => window.history.back()}
+            onClick={() => navigate("/")}
           >
             <i className="fas fa-arrow-left mr-2"></i>
             Back to Feed
