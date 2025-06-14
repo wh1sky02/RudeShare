@@ -9,8 +9,6 @@ import PostCard from "@/components/PostCard";
 import NewPostModal from "@/components/NewPostModal";
 import GuidelinesModal from "@/components/GuidelinesModal";
 import Footer from "@/components/Footer";
-import DailyChallenge from "@/components/DailyChallenge";
-import HallOfShame from "@/components/HallOfShame";
 import { Post } from "@shared/schema";
 
 export default function Home() {
@@ -86,11 +84,6 @@ export default function Home() {
     voteMutation.mutate({ postId, voteType });
   };
 
-  const handleRespondToChallenge = (prompt: string) => {
-    setPostModalOpen(true);
-    // You could pre-fill the post content with the challenge prompt if needed
-  };
-
   const displayPosts = searchQuery.length > 0 ? searchResults : posts;
   const isLoading = searchQuery.length > 0 ? searchLoading : postsLoading;
 
@@ -145,13 +138,6 @@ export default function Home() {
               <i className="fas fa-search mr-2"></i>
               Results for "{searchQuery}"
             </h2>
-          </div>
-        )}
-
-        {/* Daily Challenge */}
-        {!searchQuery && (
-          <div className="mb-4 sm:mb-6">
-            <DailyChallenge onRespondToChallenge={handleRespondToChallenge} />
           </div>
         )}
 
@@ -241,13 +227,6 @@ export default function Home() {
               <i className="fas fa-chevron-down mr-2"></i>
               Load More
             </Button>
-          </div>
-        )}
-
-        {/* Hall of Shame */}
-        {!searchQuery && (
-          <div className="mt-6 sm:mt-8">
-            <HallOfShame />
           </div>
         )}
       </main>
