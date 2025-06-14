@@ -49,9 +49,34 @@ export default function PostCard({ post, onVote, onReport, isVoting, isReporting
         {/* Content Column */}
         <div className="flex-1 min-w-0">
           <div className="prose prose-slate max-w-none">
-            <p className="text-slate-800 leading-relaxed whitespace-pre-wrap">
-              {post.content}
-            </p>
+            {post.content && (
+              <p className="text-slate-800 leading-relaxed whitespace-pre-wrap">
+                {post.content}
+              </p>
+            )}
+            
+            {/* Media Content */}
+            {post.mediaUrl && (
+              <div className="mt-3">
+                {post.mediaType === 'image' ? (
+                  <img
+                    src={post.mediaUrl}
+                    alt="User uploaded content"
+                    className="max-w-full h-auto rounded-lg border border-slate-200"
+                    style={{ maxHeight: '400px' }}
+                  />
+                ) : post.mediaType === 'video' ? (
+                  <video
+                    src={post.mediaUrl}
+                    controls
+                    className="max-w-full h-auto rounded-lg border border-slate-200"
+                    style={{ maxHeight: '400px' }}
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                ) : null}
+              </div>
+            )}
           </div>
 
           {/* Post Meta */}

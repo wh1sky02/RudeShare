@@ -9,6 +9,7 @@ import NewPostModal from "@/components/NewPostModal";
 import GuidelinesModal from "@/components/GuidelinesModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import type { Post } from "@shared/schema";
 
@@ -16,11 +17,17 @@ export default function Home() {
   const [postModalOpen, setPostModalOpen] = useState(false);
   const [guidelinesModalOpen, setGuidelinesModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'popular' | 'controversial'>('newest');
   const { toast } = useToast();
 
   // Fetch posts
   const { data: posts = [], isLoading: postsLoading } = useQuery<Post[]>({
-    queryKey: ["/api/posts"],
+    queryKey: ["/api/posts", sortBy],
+    queryFn: async () => {
+      const response = await fetch(`/api/posts?sort=${sortBy}`);
+      if (!response.ok) throw new Error('Failed to fetch posts');
+      return response.json();
+    },
   });
 
   // Fetch search results
@@ -45,6 +52,7 @@ export default function Home() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/posts", sortBy] });
     },
     onError: (error: any) => {
       if (error.message.includes('409')) {
@@ -110,9 +118,36 @@ export default function Home() {
             <h2 className="text-lg font-medium text-slate-800">
               {searchQuery ? `Search Results for "${searchQuery}"` : "Recent Posts"}
             </h2>
-            <div className="flex items-center space-x-2 text-sm text-slate-500">
-              <i className="fas fa-clock"></i>
-              <span>Updated 2 minutes ago</span>
+            <div className="flex items-center space-x-4">
+              {!searchQuery && (
+                <Select value={sortBy} onValueChange={(value: 'newest' | 'oldest' | 'popular' | 'controversial') => setSortBy(value)}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">
+                      <i className="fas fa-clock mr-2"></i>
+                      Newest
+                    </SelectItem>
+                    <SelectItem value="oldest">
+                      <i className="fas fa-history mr-2"></i>
+                      Oldest
+                    </SelectItem>
+                    <SelectItem value="popular">
+                      <i className="fas fa-fire mr-2"></i>
+                      Popular
+                    </SelectItem>
+                    <SelectItem value="controversial">
+                      <i className="fas fa-comments mr-2"></i>
+                      Most Discussed
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+              <div className="flex items-center space-x-2 text-sm text-slate-500">
+                <i className="fas fa-sync-alt"></i>
+                <span>Live</span>
+              </div>
             </div>
           </div>
 
