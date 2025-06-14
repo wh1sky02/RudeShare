@@ -51,9 +51,13 @@ export class MemStorage implements IStorage {
     this.posts = new Map();
     this.votes = new Map();
     this.reports = new Map();
+    this.bannedPolitePosts = new Map();
+    this.dailyChallenges = new Map();
     this.currentPostId = 1;
     this.currentVoteId = 1;
     this.currentReportId = 1;
+    this.currentBannedPostId = 1;
+    this.currentChallengeId = 1;
   }
 
   private hashIP(ipAddress: string): string {
@@ -94,7 +98,7 @@ export class MemStorage implements IStorage {
     return this.posts.get(id);
   }
 
-  async createPost(insertPost: InsertPost, ipAddress: string): Promise<Post> {
+  async createPost(insertPost: InsertPost, ipAddress: string, rudenessScore: number): Promise<Post> {
     const id = this.currentPostId++;
     const post: Post = {
       ...insertPost,
@@ -104,6 +108,9 @@ export class MemStorage implements IStorage {
       postId: this.generatePostId(),
       mediaUrl: insertPost.mediaUrl || null,
       mediaType: insertPost.mediaType || null,
+      rudenessScore,
+      isBoosted: rudenessScore >= 80,
+      challengeResponse: insertPost.challengeResponse || false,
       createdAt: new Date(),
     };
     this.posts.set(id, post);

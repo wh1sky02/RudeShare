@@ -46,6 +46,7 @@ export interface ModerationResult {
   isHarassment: boolean;
   flaggedWords: string[];
   severity: 'allowed' | 'banned_polite' | 'banned_illegal';
+  rudenessScore: number; // 0-100 scale
 }
 
 export function moderateContent(content: string): ModerationResult {
@@ -66,7 +67,8 @@ export function moderateContent(content: string): ModerationResult {
       isDeathThreat: deathThreats.length > 0,
       isHarassment: harassment.length > 0,
       flaggedWords: [...deathThreats, ...harassment],
-      severity: 'banned_illegal'
+      severity: 'banned_illegal',
+      rudenessScore: 0 // Banned content gets 0 score
     };
   }
   
@@ -86,13 +88,72 @@ export function moderateContent(content: string): ModerationResult {
   const politenessScore = politeWords.length + politePhrasesFound.length;
   const isTooPolite = politenessScore >= 2;
   
+  const rudenessScore = calculateRudenessScore(content);
+
   return {
     isTooPolite,
     isDeathThreat: false,
     isHarassment: false,
     flaggedWords,
-    severity: isTooPolite ? 'banned_polite' : 'allowed'
+    severity: isTooPolite ? 'banned_polite' : 'allowed',
+    rudenessScore
   };
+}
+
+const rudeWords = [
+  'fuck', 'shit', 'damn', 'hell', 'ass', 'bitch', 'bastard', 'crap', 'piss',
+  'dick', 'cock', 'pussy', 'slut', 'whore', 'idiot', 'moron', 'stupid',
+  'dumb', 'pathetic', 'loser', 'garbage', 'trash', 'suck', 'sucks',
+  'hate', 'disgusting', 'gross', 'ugly', 'awful', 'terrible', 'horrible',
+  'worthless', 'useless', 'pointless', 'bullshit', 'nonsense', 'ridiculous',
+  'absurd', 'insane', 'crazy', 'nuts', 'mental', 'lame'
+];
+
+const intensifiers = [
+  'fucking', 'damn', 'goddamn', 'bloody', 'totally', 'completely',
+  'absolutely', 'utterly', 'extremely', 'incredibly', 'massively'
+];
+
+function calculateRudenessScore(content: string): number {
+  const normalizedContent = content.toLowerCase();
+  let score = 0;
+  
+  // Base score for rude words (5 points each)
+  rudeWords.forEach(word => {
+    const matches = (normalizedContent.match(new RegExp(word, 'g')) || []).length;
+    score += matches * 5;
+  });
+  
+  // Bonus for intensifiers (3 points each)
+  intensifiers.forEach(word => {
+    const matches = (normalizedContent.match(new RegExp(word, 'g')) || []).length;
+    score += matches * 3;
+  });
+  
+  // Bonus for ALL CAPS (indicates shouting/anger)
+  const capsRatio = (content.match(/[A-Z]/g) || []).length / content.length;
+  if (capsRatio > 0.3) {
+    score += 15;
+  }
+  
+  // Bonus for multiple exclamation marks
+  const exclamationCount = (content.match(/!/g) || []).length;
+  if (exclamationCount > 1) {
+    score += exclamationCount * 2;
+  }
+  
+  // Bonus for aggressive punctuation
+  if (content.includes('!!!') || content.includes('???')) {
+    score += 10;
+  }
+  
+  // Length bonus for sustained rants
+  if (content.length > 200) {
+    score += Math.floor(content.length / 100) * 2;
+  }
+  
+  // Cap at 100
+  return Math.min(score, 100);
 }
 
 export function generateRudeResponse(flaggedWords: string[]): string {
