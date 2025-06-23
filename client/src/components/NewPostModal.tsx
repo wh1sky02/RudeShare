@@ -32,9 +32,11 @@ export default function NewPostModal({ open, onOpenChange }: NewPostModalProps) 
       const formData = new FormData();
       formData.append('file', file);
       
+      // Use FormData directly with fetch since apiRequest doesn't support it
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
+        credentials: 'include', // Add this to match apiRequest configuration
       });
       
       if (!response.ok) {
@@ -124,15 +126,11 @@ export default function NewPostModal({ open, onOpenChange }: NewPostModalProps) 
         return;
       }
       
-      setSelectedFile(file);
+      // Automatically upload the file when selected
+      uploadFileMutation.mutate(file);
     }
   };
 
-  const handleUpload = () => {
-    if (selectedFile) {
-      uploadFileMutation.mutate(selectedFile);
-    }
-  };
 
   const handleRemoveMedia = () => {
     setUploadedMedia(null);
@@ -219,29 +217,12 @@ export default function NewPostModal({ open, onOpenChange }: NewPostModalProps) 
               className="mb-3"
             />
             
-            {/* Selected File Preview */}
-            {selectedFile && (
+            {/* Upload Status */}
+            {uploadFileMutation.isPending && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                  <div className="flex items-center space-x-3">
-                    <i className={`fas ${selectedFile.type.startsWith('image/') ? 'fa-image' : 'fa-video'} text-blue-600`}></i>
-                    <div>
-                      <div className="text-sm font-medium text-blue-800 break-all">{selectedFile.name}</div>
-                      <div className="text-xs text-blue-600">
-                        {(selectedFile.size / (1024 * 1024)).toFixed(1)} MB
-                      </div>
-                    </div>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleUpload}
-                    disabled={uploadFileMutation.isPending}
-                    className="text-blue-600 hover:text-blue-700 self-start sm:self-auto"
-                  >
-                    {uploadFileMutation.isPending ? "Uploading..." : "Upload"}
-                  </Button>
+                <div className="flex items-center justify-center">
+                  <i className="fas fa-spinner fa-spin text-blue-600 mr-2"></i>
+                  <span className="text-sm font-medium text-blue-800">Uploading image...</span>
                 </div>
               </div>
             )}
