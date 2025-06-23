@@ -11,7 +11,15 @@ import { moderateContent, generateRudeResponse } from "./politeness-detector";
 
 // Configure multer for image uploads only
 const upload = multer({
-  dest: 'uploads/',
+  storage: multer.diskStorage({
+    destination: 'uploads/',
+    filename: (req, file, cb) => {
+      // Generate unique filename with original extension
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      const ext = path.extname(file.originalname);
+      cb(null, uniqueSuffix + ext);
+    }
+  }),
   limits: {
     fileSize: 10 * 1024 * 1024, // 10MB limit for images
   },
@@ -35,9 +43,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     fs.mkdirSync('uploads');
   }
 
-  // Serve uploaded files
+  // Serve uploaded files with proper content types
   app.use('/uploads', (req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
+    
+    // Set proper content type based on file extension
+    const ext = path.extname(req.path).toLowerCase();
+    const contentTypes: { [key: string]: string } = {
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.png': 'image/png',
+      '.gif': 'image/gif',
+      '.webp': 'image/webp',
+      '.mp4': 'video/mp4',
+      '.webm': 'video/webm',
+      '.mov': 'video/quicktime'
+    };
+    
+    if (contentTypes[ext]) {
+      res.set('Content-Type', contentTypes[ext]);
+    }
+    
     next();
   });
   app.use('/uploads', express.static('uploads'));
