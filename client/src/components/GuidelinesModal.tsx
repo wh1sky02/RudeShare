@@ -14,23 +14,23 @@ interface GuidelinesModalProps {
 export default function GuidelinesModal({ open, onOpenChange }: GuidelinesModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[90vw] sm:max-w-md max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Community Guidelines</DialogTitle>
         </DialogHeader>
 
         <div className="prose prose-slate max-w-none space-y-4">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <h4 className="text-red-800 font-medium mb-2">Our Mission</h4>
-            <p className="text-red-700 text-sm">
+          <div className="bg-red-800 border border-red-700 rounded-lg p-4">
+            <h4 className="text-white font-medium mb-2">Our Mission</h4>
+            <p className="text-white text-base">
               This is a platform for brutal honesty and unfiltered opinions. No sugar-coating, 
               no fake politeness. Say what you really think without the social BS.
             </p>
           </div>
 
           <div>
-            <h4 className="font-medium text-slate-800 mb-3">What We DEMAND:</h4>
-            <ul className="text-sm text-slate-700 space-y-1">
+            <h4 className="font-medium text-white mb-3">What We DEMAND:</h4>
+            <ul className="text-base text-white space-y-1">
               <li>• Brutal honesty and raw opinions</li>
               <li>• Aggressive criticism and harsh feedback</li>
               <li>• Calling out stupidity when you see it</li>
@@ -40,8 +40,8 @@ export default function GuidelinesModal({ open, onOpenChange }: GuidelinesModalP
           </div>
 
           <div>
-            <h4 className="font-medium text-slate-800 mb-3">BANNED BEHAVIOR:</h4>
-            <ul className="text-sm text-slate-700 space-y-1">
+            <h4 className="font-medium text-white mb-3">BANNED BEHAVIOR:</h4>
+            <ul className="text-base text-white space-y-1">
               <li>• Being polite or overly nice (INSTANT BAN)</li>
               <li>• "Please" and "thank you" garbage</li>
               <li>• Wholesome content or positivity</li>
@@ -51,11 +51,11 @@ export default function GuidelinesModal({ open, onOpenChange }: GuidelinesModalP
           </div>
 
           <div>
-            <h4 className="font-medium text-slate-800 mb-3">Auto-Moderation:</h4>
-            <p className="text-sm text-slate-700 mb-2">
+            <h4 className="font-medium text-white mb-3">Auto-Moderation:</h4>
+            <p className="text-base text-white mb-2">
               Our AI automatically detects and bans soft content:
             </p>
-            <ul className="text-sm text-slate-700 space-y-1">
+            <ul className="text-base text-white space-y-1">
               <li>• Polite language triggers instant removal</li>
               <li>• Kindness detection algorithm always running</li>
               <li>• Community votes for the most savage content</li>
@@ -64,9 +64,9 @@ export default function GuidelinesModal({ open, onOpenChange }: GuidelinesModalP
             </ul>
           </div>
 
-          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-            <h4 className="font-medium text-slate-800 mb-2">Warning:</h4>
-            <ul className="text-sm text-slate-600 space-y-1">
+          <div className="bg-orange-800 border border-orange-700 rounded-lg p-4">
+            <h4 className="font-medium text-white mb-2">Warning:</h4>
+            <ul className="text-base text-white space-y-1">
               <li>• This platform is for thick-skinned people only</li>
               <li>• Expect to get roasted for everything you post</li>
               <li>• No safe spaces or trigger warnings</li>

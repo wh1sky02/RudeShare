@@ -7,6 +7,7 @@ interface PostCardProps {
   post: Post;
   onVote: (postId: number, voteType: 'up' | 'down') => void;
   onReaction: (postId: number, reactionType: string) => void;
+  onDiscuss: (postId: number) => void;
   isVoting: boolean;
 }
 
@@ -19,10 +20,11 @@ const REACTION_TYPES = [
   { type: 'legendary', emoji: '👑', label: 'Legendary' },
 ];
 
-export default function PostCard({ post, onVote, onReaction, isVoting }: PostCardProps) {
+export default function PostCard({ post, onVote, onReaction, onDiscuss, isVoting }: PostCardProps) {
   const handleUpvote = () => onVote(post.id, 'up');
   const handleDownvote = () => onVote(post.id, 'down');
   const handleReaction = (reactionType: string) => onReaction(post.id, reactionType);
+  const handleDiscuss = () => onDiscuss(post.id);
 
   const timeAgo = formatDistanceToNow(new Date(post.createdAt), { addSuffix: true });
 
@@ -36,13 +38,13 @@ export default function PostCard({ post, onVote, onReaction, isVoting }: PostCar
   };
 
   return (
-    <Card className="glass p-4 sm:p-6 hover:shadow-xl transition-all duration-300 border-border/50 float-animation">
-      <div className="flex flex-col space-y-4">
+    <Card className="glass p-2 sm:p-3 hover:shadow-md transition-all duration-300 border-border/50">
+      <div className="flex flex-col space-y-2">
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="prose prose-slate max-w-none">
             {post.content && (
-              <p className="text-foreground leading-relaxed whitespace-pre-wrap text-base sm:text-lg font-medium">
+              <p className="text-foreground leading-relaxed whitespace-pre-wrap text-sm sm:text-base font-medium">
                 {post.content}
               </p>
             )}
@@ -54,16 +56,16 @@ export default function PostCard({ post, onVote, onReaction, isVoting }: PostCar
                   <img
                     src={post.mediaUrl}
                     alt="User uploaded content"
-                    className="max-w-full h-auto rounded-xl border border-border/30 shadow-lg cursor-pointer"
-                    style={{ maxHeight: '400px' }}
+                    className="max-w-full h-auto rounded-xl border border-border/30 shadow-md cursor-pointer"
+                    style={{ maxHeight: '300px' }}
                     onClick={() => window.open(post.mediaUrl!, '_blank')}
                   />
                 ) : post.mediaType === 'video' ? (
                   <video
                     src={post.mediaUrl}
                     controls
-                    className="max-w-full h-auto rounded-xl border border-border/30 shadow-lg"
-                    style={{ maxHeight: '400px' }}
+                    className="max-w-full h-auto rounded-xl border border-border/30 shadow-md"
+                    style={{ maxHeight: '300px' }}
                     playsInline
                   >
                     Your browser does not support the video tag.
@@ -78,14 +80,14 @@ export default function PostCard({ post, onVote, onReaction, isVoting }: PostCar
         <div className="flex items-center space-x-3">
           <div className="flex-1">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium text-muted-foreground">Brutality Level</span>
-              <span className={`text-xs font-bold px-2 py-1 rounded-full ${getBrutalityColor(brutalityPercentage)}`}>
+              <span className="text-[10px] font-medium text-muted-foreground">Brutality Level</span>
+              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${getBrutalityColor(brutalityPercentage)}`}>
                 {brutalityPercentage}%
               </span>
             </div>
-            <div className="w-full bg-accent/30 rounded-full h-2">
+            <div className="w-full bg-accent/30 rounded-full h-1.5">
               <div 
-                className={`h-2 rounded-full transition-all duration-500 ${
+                className={`h-1.5 rounded-full transition-all duration-500 ${
                   brutalityPercentage >= 80 ? 'bg-red-500' :
                   brutalityPercentage >= 60 ? 'bg-orange-500' :
                   brutalityPercentage >= 40 ? 'bg-yellow-500' :
@@ -108,7 +110,7 @@ export default function PostCard({ post, onVote, onReaction, isVoting }: PostCar
                 size="sm"
                 onClick={() => handleReaction(type)}
                 disabled={isVoting}
-                className={`text-xs px-2 py-1 h-auto rounded-full transition-all duration-200 touch-manipulation ${
+                className={`text-[10px] px-1.5 py-0.5 h-auto rounded-full transition-all duration-200 touch-manipulation ${
                   count > 0 
                     ? 'bg-accent/50 text-foreground border border-border/50' 
                     : 'hover:bg-accent/30 text-muted-foreground'
@@ -135,7 +137,7 @@ export default function PostCard({ post, onVote, onReaction, isVoting }: PostCar
             >
               <i className="fas fa-chevron-up text-lg"></i>
             </Button>
-            <span className="text-lg font-bold text-foreground bg-accent/30 px-3 py-1 rounded-full min-w-[3rem] text-center">
+            <span className="text-base font-bold text-foreground bg-accent/30 px-2 py-0.5 rounded-full min-w-[2.5rem] text-center">
               {post.score}
             </span>
             <Button
@@ -147,16 +149,26 @@ export default function PostCard({ post, onVote, onReaction, isVoting }: PostCar
             >
               <i className="fas fa-chevron-down text-lg"></i>
             </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleDiscuss}
+              disabled={isVoting}
+              className="text-muted-foreground hover:text-blue-400 p-2 h-auto rounded-full hover:bg-blue-500/10 transition-all duration-200 touch-manipulation"
+            >
+              <i className="fas fa-comment text-lg"></i>
+              {post.commentCount && post.commentCount > 0 && <span className="ml-1 text-xs font-bold">{post.commentCount}</span>}
+            </Button>
           </div>
 
           {/* Post Meta */}
           <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            <span className="font-medium">{timeAgo}</span>
-            <span className="font-mono text-xs bg-accent/50 px-2 py-1 rounded-full">{post.postId}</span>
+            <span className="font-medium text-xs">{timeAgo}</span>
+            <span className="font-mono text-[10px] bg-accent/50 px-1.5 py-0.5 rounded-full">{post.postId}</span>
             
             {/* Boosted Badge */}
             {post.isBoosted && (
-              <div className="bg-red-500/30 px-2 py-1 rounded-full text-xs font-bold text-red-300 glow-red">
+              <div className="bg-red-500/30 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-red-300 glow-red">
                 ⚡ BOOSTED
               </div>
             )}

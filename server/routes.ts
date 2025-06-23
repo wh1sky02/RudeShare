@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertPostSchema, insertVoteSchema, insertReactionSchema, insertReportSchema } from "@shared/schema";
+import { insertPostSchema, insertVoteSchema, insertReactionSchema, insertReportSchema, insertCommentSchema, insertCommentVoteSchema } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
@@ -118,7 +118,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Post content too long (max 2000 characters)" });
       }
       
-      // Moderate content for politeness and illegal content
+      // Moderate content for illegal and polite content
       const moderation = moderateContent(validatedData.content);
       
       if (moderation.severity === 'banned_illegal') {
@@ -128,26 +128,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      const clientIP = req.ip || req.connection.remoteAddress || '127.0.0.1';
-      
       if (moderation.severity === 'banned_polite') {
-        const rudeResponse = generateRudeResponse(moderation.flaggedWords);
-        
-        // Store in Hall of Shame
-        await storage.createBannedPolitePost({
-          content: validatedData.content,
-          flaggedWords: moderation.flaggedWords,
-          rudeResponse
-        }, clientIP);
-        
         return res.status(403).json({ 
-          message: `BANNED FOR BEING TOO POLITE: ${rudeResponse}`,
+          message: "Content banned for being too polite. This is RudeShare!",
           flaggedWords: moderation.flaggedWords,
-          reason: "politeness_violation"
+          rudeResponse: generateRudeResponse(moderation.flaggedWords)
         });
       }
       
-      const post = await storage.createPost(validatedData, clientIP, moderation.rudenessScore);
+      const clientIP = req.ip || req.connection.remoteAddress || '127.0.0.1';
+      const post = await storage.createPost(validatedData, clientIP, 0);
       res.status(201).json(post);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -180,7 +170,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // React to post
+  // React to post (toggle reaction)
   app.post("/api/posts/:id/react", async (req, res) => {
     try {
       const postId = parseInt(req.params.id);
@@ -188,13 +178,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertReactionSchema.parse(reactionData);
       
       const clientIP = req.ip || req.connection.remoteAddress || '127.0.0.1';
-      const reaction = await storage.createReaction(validatedData, clientIP);
+      const existingReaction = await storage.getReaction(validatedData.postId, validatedData.reactionType, clientIP);
       
-      if (!reaction) {
-        return res.status(409).json({ message: "You have already reacted with this type on this post" });
+      if (existingReaction) {
+        // If reaction exists, remove it
+        await storage.removeReaction(existingReaction.id);
+        res.status(200).json({ message: "Reaction removed", reactionType: validatedData.reactionType });
+      } else {
+        // If no reaction exists, add it
+        const reaction = await storage.createReaction(validatedData, clientIP);
+        res.status(201).json(reaction);
       }
-      
-      res.status(201).json(reaction);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid reaction data", errors: error.errors });
@@ -229,6 +223,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(stats);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch statistics" });
+    }
+  });
+
+  // Get comments for a post
+  app.get("/api/posts/:id/comments", async (req, res) => {
+    try {
+      const postId = parseInt(req.params.id);
+      const sortBy = req.query.sort as 'newest' | 'oldest' | 'popular' || 'newest';
+      const comments = await storage.getCommentsByPostId(postId, sortBy);
+      res.json(comments);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch comments" });
+    }
+  });
+
+  // Create a new comment
+  app.post("/api/posts/:id/comments", async (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    try {
+      const postId = parseInt(req.params.id);
+      const commentData = { ...req.body, postId };
+      const validatedData = insertCommentSchema.parse(commentData);
+      
+      // Basic content validation
+      if (validatedData.content.trim().length === 0) {
+        return res.status(400).json({ message: "Comment must have content" });
+      }
+      
+      if (validatedData.content.length > 1000) {
+        return res.status(400).json({ message: "Comment content too long (max 1000 characters)" });
+      }
+      
+      // Moderate content for illegal and polite content
+      const moderation = moderateContent(validatedData.content);
+      
+      if (moderation.severity === 'banned_illegal') {
+        return res.status(403).json({ 
+          message: "Content banned for legal reasons (death threats/harassment)",
+          flaggedWords: moderation.flaggedWords
+        });
+      }
+      
+      if (moderation.severity === 'banned_polite') {
+        return res.status(403).json({ 
+          message: "Comment banned for being too polite. This is RudeShare!",
+          flaggedWords: moderation.flaggedWords,
+          rudeResponse: generateRudeResponse(moderation.flaggedWords)
+        });
+      }
+      
+      const clientIP = req.ip || req.connection.remoteAddress || '127.0.0.1';
+      const comment = await storage.createComment(validatedData, clientIP, 0);
+      res.status(201).json(comment);
+    } catch (error) {
+      console.error("Error in comment creation:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid comment data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create comment", error: error instanceof Error ? error.message : String(error) });
+    }
+  });
+
+  // Vote on a comment
+  app.post("/api/comments/:id/vote", async (req, res) => {
+    try {
+      const commentId = parseInt(req.params.id);
+      const voteData = { ...req.body, commentId };
+      const validatedData = insertCommentVoteSchema.parse(voteData);
+      
+      const clientIP = req.ip || req.connection.remoteAddress || '127.0.0.1';
+      const vote = await storage.createCommentVote(validatedData, clientIP);
+      
+      if (!vote) {
+        return res.status(409).json({ message: "You have already voted on this comment" });
+      }
+      
+      res.status(201).json(vote);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid vote data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to record vote" });
     }
   });
 

@@ -16,12 +16,12 @@ export default function Header({ searchQuery, onSearchChange, onNewPost, onShowG
 
   return (
     <header className="glass sticky top-0 z-50 border-b border-border/50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2 sm:py-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3 sm:space-x-6">
+          <div className="flex items-center space-x-3 sm:space-x-6 -ml-4 sm:-ml-6">
             <button 
               onClick={() => navigate("/")}
-              className="text-xl sm:text-2xl font-bold gradient-text hover:opacity-80 transition-opacity"
+              className="text-lg sm:text-xl font-bold gradient-text hover:opacity-80 transition-opacity"
             >
               <i className="fas fa-fire mr-2 sm:mr-3 text-red-500"></i>
               <span className="hidden xs:inline">RudeShare</span>
@@ -58,17 +58,6 @@ export default function Header({ searchQuery, onSearchChange, onNewPost, onShowG
                 <i className="fas fa-search text-sm"></i>
               </Button>
             )}
-
-            {/* Features Button */}
-            <Button 
-              variant={location === "/features" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => navigate("/features")}
-              className="hover:bg-accent/50 transition-colors p-2 h-9 w-9 sm:w-auto sm:px-3"
-            >
-              <i className="fas fa-fire text-sm"></i>
-              <span className="hidden sm:inline ml-2">Features</span>
-            </Button>
 
             {/* New Post Button */}
             <Button 

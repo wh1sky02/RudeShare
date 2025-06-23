@@ -21,13 +21,13 @@ export default function DailyChallenge({ onRespondToChallenge }: DailyChallengeP
     return (
       <Card className="glass border-border/50 glow-red-hover transition-all duration-300">
         <CardHeader>
-          <CardTitle className="gradient-text text-lg sm:text-xl">
-            <i className="fas fa-fire mr-2 sm:mr-3"></i>
-            Today's Brutal Challenge
-          </CardTitle>
+<CardTitle className="gradient-text text-lg sm:text-xl">
+  <i className="fas fa-fire mr-2 sm:mr-3"></i>
+  Today's Ruthless Smackdown
+</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="animate-pulse">
+          <div>
             <div className="h-6 bg-accent/30 rounded w-3/4 mb-4"></div>
             <div className="h-10 bg-accent/30 rounded w-full"></div>
           </div>
@@ -63,11 +63,11 @@ export default function DailyChallenge({ onRespondToChallenge }: DailyChallengeP
   return (
     <Card className="glass border-border/50 glow-red-hover transition-all duration-300 hover:shadow-xl">
       <CardHeader>
-        <CardTitle className="gradient-text flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0 text-lg sm:text-xl">
-          <span>
-            <i className="fas fa-fire mr-2 sm:mr-3"></i>
-            Today's Brutal Challenge
-          </span>
+<CardTitle className="gradient-text flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0 text-lg sm:text-xl">
+  <span>
+    <i className="fas fa-fire mr-2 sm:mr-3"></i>
+    Today's Ruthless Smackdown
+  </span>
           <div className="text-sm font-normal text-muted-foreground bg-accent/30 px-3 py-1 rounded-full self-start sm:self-auto">
             {challenge.responseCount} responses
           </div>
@@ -78,18 +78,18 @@ export default function DailyChallenge({ onRespondToChallenge }: DailyChallengeP
           <div className="text-base sm:text-lg font-bold text-foreground mb-2">
             {challenge.prompt}
           </div>
-          <div className="text-sm text-muted-foreground">
-            Drop your most savage take on this prompt
-          </div>
+<div className="text-sm text-muted-foreground">
+  Spit your harshest, most brutal comeback on this
+</div>
         </div>
         
-        <Button 
-          onClick={handleRespond}
-          className="w-full bg-primary hover:bg-primary/90 glow-red-hover transition-all duration-200 font-bold text-base sm:text-lg py-4 sm:py-6 touch-manipulation"
-        >
-          <i className="fas fa-fist-raised mr-2 sm:mr-3"></i>
-          Accept Challenge & Destroy It
-        </Button>
+<Button 
+  onClick={handleRespond}
+  className="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white glow-red-hover transition-all duration-200 font-bold text-sm sm:text-base py-3 sm:py-4 touch-manipulation"
+>
+  <i className="fas fa-fist-raised mr-2"></i>
+  Throw Down
+</Button>
         
         <div className="text-center text-xs text-muted-foreground">
           New challenge drops daily at midnight

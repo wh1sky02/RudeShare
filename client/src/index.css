@@ -52,14 +52,27 @@
     @apply border-border;
   }
 
-  body {
-    @apply bg-background text-foreground font-sans antialiased;
-    background: linear-gradient(135deg, hsl(0, 0%, 5%) 0%, hsl(0, 0%, 8%) 100%);
+  html {
     min-height: 100vh;
+    background: linear-gradient(135deg, hsl(0, 0%, 5%) 0%, hsl(0, 0%, 8%) 100%);
+    background-color: hsl(0, 0%, 5%);
+    background-attachment: fixed;
+    overflow: auto;
+  }
+  
+  body {
+    @apply text-foreground font-sans antialiased;
+    min-height: 100vh;
+    background: linear-gradient(135deg, hsl(0, 0%, 5%) 0%, hsl(0, 0%, 8%) 100%);
+    background-color: hsl(0, 0%, 5%);
+    background-attachment: fixed;
     /* Prevent zoom on iOS */
     -webkit-text-size-adjust: 100%;
     /* Improve touch scrolling */
     -webkit-overflow-scrolling: touch;
+    /* Ensure scrollbar is on the right */
+    direction: ltr;
+    overflow-y: auto;
   }
 
   /* Modern scrollbar */
@@ -85,6 +98,13 @@
     /* Prevent horizontal scroll */
     html, body {
       overflow-x: hidden;
+    }
+    html, body {
+      overflow-y: auto;
+      min-height: 100vh;
+      background: linear-gradient(135deg, hsl(0, 0%, 5%) 0%, hsl(0, 0%, 8%) 100%);
+      background-color: hsl(0, 0%, 5%);
+      background-attachment: fixed;
     }
     
     /* Improve touch targets */

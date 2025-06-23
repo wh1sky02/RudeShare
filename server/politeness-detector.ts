@@ -84,9 +84,9 @@ export function moderateContent(content: string): ModerationResult {
   
   flaggedWords.push(...politeWords, ...politePhrasesFound);
   
-  // Determine if too polite (ban threshold: 2+ polite words/phrases)
+  // Determine if too polite (ban threshold: 1+ polite words/phrases)
   const politenessScore = politeWords.length + politePhrasesFound.length;
-  const isTooPolite = politenessScore >= 2;
+  const isTooPolite = politenessScore >= 1;
   
   const rudenessScore = calculateRudenessScore(content);
 

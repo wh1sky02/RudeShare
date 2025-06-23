@@ -58,6 +58,24 @@ export const dailyChallenges = pgTable("daily_challenges", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const comments = pgTable("comments", {
+  id: serial("id").primaryKey(),
+  postId: integer("post_id").notNull(),
+  content: text("content").notNull(),
+  score: integer("score").notNull().default(0),
+  commentId: text("comment_id").notNull().unique(), // Anonymous ID like #C7B9C2
+  rudenessScore: integer("rudeness_score").notNull().default(0), // 0-100 scale
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const commentVotes = pgTable("comment_votes", {
+  id: serial("id").primaryKey(),
+  commentId: integer("comment_id").notNull(),
+  voteType: text("vote_type").notNull(), // 'up' or 'down'
+  ipHash: text("ip_hash").notNull(), // Hashed IP to prevent duplicate votes
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const insertPostSchema = createInsertSchema(posts).pick({
   content: true,
   mediaUrl: true,
@@ -86,6 +104,16 @@ export const insertBannedPolitePostSchema = createInsertSchema(bannedPolitePosts
   rudeResponse: true,
 });
 
+export const insertCommentSchema = createInsertSchema(comments).pick({
+  postId: true,
+  content: true,
+});
+
+export const insertCommentVoteSchema = createInsertSchema(commentVotes).pick({
+  commentId: true,
+  voteType: true,
+});
+
 export const insertDailyChallengeSchema = createInsertSchema(dailyChallenges).pick({
   prompt: true,
   date: true,
@@ -95,6 +123,7 @@ export type InsertPost = z.infer<typeof insertPostSchema>;
 export type Post = typeof posts.$inferSelect & {
   reactions?: { [key: string]: number };
   brutalityPercentage?: number;
+  commentCount?: number;
 };
 export type InsertVote = z.infer<typeof insertVoteSchema>;
 export type Vote = typeof votes.$inferSelect;
@@ -104,5 +133,11 @@ export type InsertReport = z.infer<typeof insertReportSchema>;
 export type Report = typeof reports.$inferSelect;
 export type InsertBannedPolitePost = z.infer<typeof insertBannedPolitePostSchema>;
 export type BannedPolitePost = typeof bannedPolitePosts.$inferSelect;
+export type InsertComment = z.infer<typeof insertCommentSchema>;
+export type Comment = typeof comments.$inferSelect;
+
+export type InsertCommentVote = z.infer<typeof insertCommentVoteSchema>;
+export type CommentVote = typeof commentVotes.$inferSelect;
+
 export type InsertDailyChallenge = z.infer<typeof insertDailyChallengeSchema>;
 export type DailyChallenge = typeof dailyChallenges.$inferSelect;

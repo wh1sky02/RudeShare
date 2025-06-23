@@ -172,21 +172,21 @@ export default function NewPostModal({ open, onOpenChange }: NewPostModalProps) 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[95vh] overflow-y-auto glass border-border/50 mx-4 sm:mx-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl sm:text-2xl font-bold gradient-text">
-            <i className="fas fa-fire mr-2 sm:mr-3 text-primary"></i>
-            Drop Your Brutal Take
-          </DialogTitle>
+<DialogTitle className="text-xl sm:text-2xl font-bold gradient-text">
+  <i className="fas fa-fire mr-2 sm:mr-3 text-primary"></i>
+  Unleash Your Savage Rant
+</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div>
-            <Textarea
-              placeholder="What's pissing you off today? Be brutal, be honest, be rude. No nice crap allowed..."
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="min-h-32 sm:min-h-40 resize-none bg-card border-border/50 focus:border-primary/50 transition-all duration-200 text-base sm:text-lg"
-              maxLength={2000}
-            />
+<Textarea
+  placeholder="What's grinding your gears? Rip into it, no holding back. Polite garbage gets you banned!"
+  value={content}
+  onChange={(e) => setContent(e.target.value)}
+  className="min-h-32 sm:min-h-40 resize-none bg-card border-border/50 focus:border-primary/50 transition-all duration-200 text-base sm:text-lg"
+  maxLength={2000}
+/>
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-3 space-y-2 sm:space-y-0 text-sm">
               <span className="text-muted-foreground font-medium">
                 <i className="fas fa-user-secret mr-2"></i>
@@ -290,21 +290,6 @@ export default function NewPostModal({ open, onOpenChange }: NewPostModalProps) 
             )}
           </div>
 
-          <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-            <div className="flex items-start space-x-2">
-              <i className="fas fa-exclamation-triangle text-red-600 mt-0.5 flex-shrink-0"></i>
-              <div className="text-sm text-red-800">
-                <p className="font-medium mb-1">RudeShare Rules:</p>
-                <ul className="space-y-1 text-xs">
-                  <li>• BE RUDE - politeness gets you banned</li>
-                  <li>• Savage criticism and brutal honesty only</li>
-                  <li>• Death threats still banned (legal reasons)</li>
-                  <li>• Posts are permanent - own your rudeness</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
             <Button
               type="button"
@@ -314,13 +299,13 @@ export default function NewPostModal({ open, onOpenChange }: NewPostModalProps) 
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={createPostMutation.isPending || isOverLimit || (content.trim().length === 0 && !uploadedMedia)}
-              className="bg-red-600 hover:bg-red-700 order-1 sm:order-2 touch-manipulation"
-            >
-              {createPostMutation.isPending ? "Posting..." : "Post Your Rant"}
-            </Button>
+<Button
+  type="submit"
+  disabled={createPostMutation.isPending || isOverLimit || (content.trim().length === 0 && !uploadedMedia)}
+  className="bg-red-600 hover:bg-red-700 order-1 sm:order-2 touch-manipulation"
+>
+  {createPostMutation.isPending ? "Posting..." : "Blast Your Hate"}
+</Button>
           </div>
         </form>
       </DialogContent>

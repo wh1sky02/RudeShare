@@ -1,4 +1,4 @@
-import { posts, votes, reports, bannedPolitePosts, dailyChallenges, reactions, type Post, type InsertPost, type Vote, type InsertVote, type Report, type InsertReport, type BannedPolitePost, type InsertBannedPolitePost, type DailyChallenge, type InsertDailyChallenge, type Reaction, type InsertReaction } from "@shared/schema";
+import { posts, votes, reports, bannedPolitePosts, dailyChallenges, reactions, comments, commentVotes, type Post, type InsertPost, type Vote, type InsertVote, type Report, type InsertReport, type BannedPolitePost, type InsertBannedPolitePost, type DailyChallenge, type InsertDailyChallenge, type Reaction, type InsertReaction, type Comment, type InsertComment, type CommentVote, type InsertCommentVote } from "@shared/schema";
 import crypto from "crypto";
 
 export interface IStorage {
@@ -30,6 +30,14 @@ export interface IStorage {
   createDailyChallenge(challenge: InsertDailyChallenge): Promise<DailyChallenge>;
   incrementChallengeResponses(challengeId: number): Promise<void>;
   
+  // Comments
+  getCommentsByPostId(postId: number, sortBy?: 'newest' | 'oldest' | 'popular'): Promise<Comment[]>;
+  createComment(comment: InsertComment, ipAddress: string, rudenessScore: number): Promise<Comment>;
+  
+  // Comment Votes
+  createCommentVote(vote: InsertCommentVote, ipAddress: string): Promise<CommentVote | null>;
+  hasUserVotedOnComment(commentId: number, ipAddress: string): Promise<boolean>;
+  
   // Statistics
   getStatistics(): Promise<{
     totalPosts: number;
@@ -37,6 +45,7 @@ export interface IStorage {
     activeUsers: number;
     avgRudenessScore: number;
     bannedPoliteCount: number;
+    totalComments: number;
   }>;
 }
 
@@ -47,12 +56,16 @@ export class MemStorage implements IStorage {
   private reports: Map<number, Report>;
   private bannedPolitePosts: Map<number, BannedPolitePost>;
   private dailyChallenges: Map<number, DailyChallenge>;
+  private comments: Map<number, Comment>;
+  private commentVotes: Map<number, CommentVote>;
   private currentPostId: number;
   private currentVoteId: number;
   private currentReactionId: number;
   private currentReportId: number;
   private currentBannedPostId: number;
   private currentChallengeId: number;
+  private currentCommentId: number;
+  private currentCommentVoteId: number;
 
   constructor() {
     this.posts = new Map();
@@ -61,12 +74,16 @@ export class MemStorage implements IStorage {
     this.reports = new Map();
     this.bannedPolitePosts = new Map();
     this.dailyChallenges = new Map();
+    this.comments = new Map();
+    this.commentVotes = new Map();
     this.currentPostId = 1;
     this.currentVoteId = 1;
     this.currentReactionId = 1;
     this.currentReportId = 1;
     this.currentBannedPostId = 1;
     this.currentChallengeId = 1;
+    this.currentCommentId = 1;
+    this.currentCommentVoteId = 1;
     
     // Initialize today's challenge
     this.initializeTodaysChallenge();
@@ -142,14 +159,16 @@ export class MemStorage implements IStorage {
   async getAllPosts(sortBy: 'newest' | 'oldest' | 'popular' | 'controversial' = 'newest'): Promise<Post[]> {
     const posts = Array.from(this.posts.values());
     
-    // Add reactions and brutality percentage to each post
+    // Add reactions, brutality percentage, and comment count to each post
     const postsWithReactions = await Promise.all(posts.map(async (post) => {
       const reactions = await this.getPostReactions(post.id);
       const brutalityPercentage = this.calculateBrutalityPercentage(post);
+      const commentCount = Array.from(this.comments.values()).filter(comment => comment.postId === post.id).length;
       return {
         ...post,
         reactions,
-        brutalityPercentage
+        brutalityPercentage,
+        commentCount
       };
     }));
     
@@ -177,11 +196,13 @@ export class MemStorage implements IStorage {
     
     const reactions = await this.getPostReactions(id);
     const brutalityPercentage = this.calculateBrutalityPercentage(post);
+    const commentCount = Array.from(this.comments.values()).filter(comment => comment.postId === id).length;
     
     return {
       ...post,
       reactions,
-      brutalityPercentage
+      brutalityPercentage,
+      commentCount
     };
   }
 
@@ -261,7 +282,7 @@ export class MemStorage implements IStorage {
   async hasUserReacted(postId: number, reactionType: string, ipAddress: string): Promise<boolean> {
     const ipHash = this.hashIP(ipAddress);
     return Array.from(this.reactions.values()).some(
-      reaction => reaction.postId === postId && reaction.reactionType === reactionType && reaction.ipHash === ipHash
+      reaction => reaction.postId === postId && reaction.ipHash === ipHash
     );
   }
 
@@ -296,6 +317,17 @@ export class MemStorage implements IStorage {
     return reactionCounts;
   }
 
+  async getReaction(postId: number, reactionType: string, ipAddress: string): Promise<Reaction | undefined> {
+    const ipHash = this.hashIP(ipAddress);
+    return Array.from(this.reactions.values()).find(
+      reaction => reaction.postId === postId && reaction.reactionType === reactionType && reaction.ipHash === ipHash
+    );
+  }
+
+  async removeReaction(reactionId: number): Promise<boolean> {
+    return this.reactions.delete(reactionId);
+  }
+
   async createReport(insertReport: InsertReport, ipAddress: string): Promise<Report> {
     const ipHash = this.hashIP(ipAddress);
     const id = this.currentReportId++;
@@ -327,7 +359,7 @@ export class MemStorage implements IStorage {
       // Delete posts older than 3 days with no votes
       if (new Date(post.createdAt) < threeDaysAgo && post.score === 0) {
         this.posts.delete(id);
-        // Also remove associated votes, reactions, and reports
+        // Also remove associated votes, reactions, reports, and comments
         Array.from(this.votes.entries()).forEach(([voteId, vote]) => {
           if (vote.postId === id) {
             this.votes.delete(voteId);
@@ -341,6 +373,17 @@ export class MemStorage implements IStorage {
         Array.from(this.reports.entries()).forEach(([reportId, report]) => {
           if (report.postId === id) {
             this.reports.delete(reportId);
+          }
+        });
+        Array.from(this.comments.entries()).forEach(([commentId, comment]) => {
+          if (comment.postId === id) {
+            this.comments.delete(commentId);
+            // Also remove associated comment votes
+            Array.from(this.commentVotes.entries()).forEach(([voteId, vote]) => {
+              if (vote.commentId === commentId) {
+                this.commentVotes.delete(voteId);
+              }
+            });
           }
         });
         deletedCount++;
@@ -369,6 +412,82 @@ export class MemStorage implements IStorage {
       .slice(0, limit);
     return posts;
   }
+
+  // Comments
+  async getCommentsByPostId(postId: number, sortBy: 'newest' | 'oldest' | 'popular' = 'newest'): Promise<Comment[]> {
+    const postComments = Array.from(this.comments.values()).filter(comment => comment.postId === postId);
+    
+    switch (sortBy) {
+      case 'oldest':
+        return postComments.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+      case 'popular':
+        return postComments.sort((a, b) => b.score - a.score);
+      case 'newest':
+      default:
+        return postComments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+  }
+
+  async createComment(insertComment: InsertComment, ipAddress: string, rudenessScore: number): Promise<Comment> {
+    const id = this.currentCommentId++;
+    const comment: Comment = {
+      ...insertComment,
+      id,
+      score: 0,
+      commentId: this.generateCommentId(),
+      rudenessScore,
+      createdAt: new Date(),
+    };
+    this.comments.set(id, comment);
+    return comment;
+  }
+
+  private generateCommentId(): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 6; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return `#C${result}`;
+  }
+
+  // Comment Votes
+  async hasUserVotedOnComment(commentId: number, ipAddress: string): Promise<boolean> {
+    const ipHash = this.hashIP(ipAddress);
+    return Array.from(this.commentVotes.values()).some(
+      vote => vote.commentId === commentId && vote.ipHash === ipHash
+    );
+  }
+
+  async createCommentVote(insertVote: InsertCommentVote, ipAddress: string): Promise<CommentVote | null> {
+    const ipHash = this.hashIP(ipAddress);
+    
+    // Check if user already voted on this comment
+    if (await this.hasUserVotedOnComment(insertVote.commentId, ipAddress)) {
+      return null;
+    }
+
+    const id = this.currentCommentVoteId++;
+    const vote: CommentVote = {
+      ...insertVote,
+      id,
+      ipHash,
+      createdAt: new Date(),
+    };
+    
+    this.commentVotes.set(id, vote);
+    
+    // Update comment score
+    const comment = this.comments.get(insertVote.commentId);
+    if (comment) {
+      const scoreChange = insertVote.voteType === 'up' ? 1 : -1;
+      comment.score += scoreChange;
+      this.comments.set(comment.id, comment);
+    }
+    
+    return vote;
+  }
+
 
   // Daily Challenges
   async getTodaysChallenge(): Promise<DailyChallenge | null> {
@@ -405,6 +524,7 @@ export class MemStorage implements IStorage {
     activeUsers: number;
     avgRudenessScore: number;
     bannedPoliteCount: number;
+    totalComments: number;
   }> {
     const totalPosts = this.posts.size;
     
@@ -422,9 +542,13 @@ export class MemStorage implements IStorage {
     const recentReactions = Array.from(this.reactions.values()).filter(
       reaction => new Date(reaction.createdAt) >= oneHourAgo
     );
+    const recentCommentVotes = Array.from(this.commentVotes.values()).filter(
+      vote => new Date(vote.createdAt) >= oneHourAgo
+    );
     const uniqueIPs = new Set([
       ...recentVotes.map(vote => vote.ipHash),
-      ...recentReactions.map(reaction => reaction.ipHash)
+      ...recentReactions.map(reaction => reaction.ipHash),
+      ...recentCommentVotes.map(vote => vote.ipHash)
     ]);
     const activeUsers = uniqueIPs.size;
 
@@ -435,6 +559,7 @@ export class MemStorage implements IStorage {
       : 0;
 
     const bannedPoliteCount = this.bannedPolitePosts.size;
+    const totalComments = this.comments.size;
     
     return {
       totalPosts,
@@ -442,6 +567,7 @@ export class MemStorage implements IStorage {
       activeUsers,
       avgRudenessScore,
       bannedPoliteCount,
+      totalComments,
     };
   }
 }
